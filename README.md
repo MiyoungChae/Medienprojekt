@@ -33,8 +33,15 @@ Durch die Projektarbeit möchte ich außerdem meine Grundlagen im Webdesign und 
    - Diese Kategorien in einer Kartenstruktur angelegt, sodass man zu den jeweiligen Detailseiten mit den einzelnen Arbeiten navigieren kann.  
    - Zusätzlich habe ich einfache Wireframes für den Footer sowie für die Bereiche **Kontakt** und **Impressum** erstellt.  
 
-5. Umsetzung der Designs mit HTML, CSS und JavaScript  
+5. Umsetzung der Designs mit HTML, CSS und JavaScript
+   -
+   -
+   -
+   -
+   -
+   -
 
+   
 
 
 
