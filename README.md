@@ -34,12 +34,12 @@ Durch die Projektarbeit möchte ich außerdem meine Grundlagen im Webdesign und 
    - Zusätzlich habe ich einfache Wireframes für den Footer sowie für die Bereiche **Kontakt** und **Impressum** erstellt.  
 
 5. Umsetzung der Designs mit HTML, CSS und JavaScript
-   -
-   -
-   -
-   -
-   -
-   -
+-
+-
+-
+-
+-
+-
 
    
 
