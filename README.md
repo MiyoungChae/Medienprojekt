@@ -43,6 +43,22 @@ Die Wireframes helfen, das Grundgerüst zu testen, bevor Farben, Typografie und 
    - Diese Kategorien in einer Kartenstruktur angelegt, sodass man zu den jeweiligen Detailseiten mit den einzelnen Arbeiten navigieren kann.  
    - Zusätzlich habe ich einfache Wireframes für den Footer sowie für die Bereiche **Kontakt** und **Impressum** erstellt.  
 
-4. Umsetzung der Designs mit HTML, CSS und JavaScript  
+4. Umsetzung der Designs mit HTML, CSS und JavaScript
+   -Startseite (Hero) mit GSAP + ScrollTrigger
+     Typo-Intro (H1/Hero-Claim) mit sanftem Fade/Slide-In
+     Scroll-Hinweis (minimaler Pfeil)
+     „Spotlight“-Cursor (Neon-Glow), optional abschaltbar via prefers-reduced-motion
+   -Struktur
+     Semantisches HTML (header, main, section, nav)
+     Responsive Typografie (Clamp-Funktionen) & Mobile-First
+   -Typografie
+     Inter (Text), Montserrat (Headlines) – WOFF2 lokal eingebunden
+   -Farbsystem
+     Dark-Hero (#111 Hintergrund, #fff Text), hohe Kontraste für Lesbarkeit
+   -Animationen (GSAP ScrollTrigger)
+     Content-Blöcke kommen von rechts nach links in den Viewport
+     Stagger (zeitversetzt), weiche Easing-Kurven, einmaliges Abspielen (once: true)
+ 
+  
 
 

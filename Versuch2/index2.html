@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Portfolio — Live Code</title>
+  <!-- CSS laden -->
+  <link rel="stylesheet" href="style2.css" />
+  <!-- JS laden (defer = nach HTML) -->
+  <script defer src="main2.js"></script>
+</head>
+<body>
+
+  <!-- Hintergrund-Canvas für Glühwürmchen (bleibt wie bisher) -->
+  <canvas id="ff" aria-hidden="true"></canvas>
+
+  <!-- Zwei Spalten: links Vorschau, rechts Editor -->
+  <main class="app">
+    <!-- Linke Seite: Vorschau-Texte -->
+    <section class="left">
+      <div class="vorstellung">
+        <!-- Starttexte – JS liest sie ein und tippt sie neu -->
+        <h1>Hi, I'm Miyoung</h1>
+        <h1>Medien Design</h1>
+        <h1>Ideas into Visuals</h1>
+        <h1>Experiences into Design</h1>
+        <h1>Branding</h1>
+        <h1>Print Design</h1>
+        <h1>Web Design</h1>
+        <h1>Illustration</h1>
+        <h1>Photo and Video Editing</h1>
+      </div>
+    </section>
+
+    <!-- Rechte Seite: einfacher Editor (eine Spalte) -->
+    <section class="right">
+      <div class="editor-window">
+        <div class="editor-titlebar">
+          <!-- kleine Fenster-Buttons (nur Deko) -->
+          <span class="dot red"></span>
+          <span class="dot yellow"></span>
+          <span class="dot green"></span>
+          <div class="title">index.html</div>
+        </div>
+
+        <!-- EIN Bereich: nur HTML (mit inline <style>) -->
+        <pre class="editor" id="editor"><code class="code-area"></code></pre>
+      </div>
+    </section>
+  </main>
+
+  <!-- Hier schreibt JS den getippten CSS-Code live hinein -->
+  <style id="live-style"></style>
+
+</body>
+</html>
