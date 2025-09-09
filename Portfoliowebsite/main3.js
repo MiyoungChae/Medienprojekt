@@ -115,12 +115,12 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // Geschwindigkeit und Rhythmus
-    let baseSpeed = 520;   // px pro Sekunde (höher = schneller)
-    const amp1 = 0.35;     // große Welle
-    const amp2 = 0.12;     // kleine Welle
-    const f1 = 0.10;       // Frequenz 1
-    const f2 = 0.75;       // Frequenz 2
-    const holdMs = 40;     // kurze Pause nach jedem Bild
+    let baseSpeed = 650;   // px pro Sekunde (höher = schneller)
+    const amp1 = 0.45;     // große Welle
+    const amp2 = 0.22;     // kleine Welle
+    const f1 = 0.40;       // Frequenz 1
+    const f2 = 0.55;       // Frequenz 2
+    const holdMs = 60;     // kurze Pause nach jedem Bild
 
     // Lauf-Werte
     let x = 0;                   // Position
