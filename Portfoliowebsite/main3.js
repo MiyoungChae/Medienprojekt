@@ -95,10 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // rhythmus: wie blättern
-    const baseSpeed = 120; // grundtempo px/s
-    const amp1 = 0.65; // starke welle
-    const amp2 = 0.25; // kleine welle
-    const f1 = 0.9; // frequenz 1
+    const baseSpeed = 520; // grundtempo px/s
+    const amp1 = 0.85; // starke welle
+    const amp2 = 0.35; // kleine welle
+    const f1 = 0.40; // frequenz 1
     const f2 = 0.45; // frequenz 2
     let t0 = performance.now(); // startzeit
     let x = 0; // position

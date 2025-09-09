@@ -1,4 +1,4 @@
-/* Schrift laden */
+/* Schrift */
 @font-face {
   font-family: 'Inter';
   src: url('fonts/Inter-Regular.woff2') format('woff2');
@@ -6,6 +6,7 @@
   font-style: normal;
   font-display: swap;
 }
+
 @font-face {
   font-family: 'Montserrat';
   src: url('fonts/Montserrat-SemiBold.woff2') format('woff2');
@@ -14,45 +15,50 @@
   font-display: swap;
 }
 
-/* Variablen */
+/* Film-Variablen */
 :root {
   --filmFilter: none;
-  --filmOp: 1;
+  --filmShade: 0;
 }
 
 /* Basis */
 * {
   box-sizing: border-box;
 }
+
 html,
 body {
   height: 100%;
   margin: 0;
 }
+
 html {
   scroll-behavior: smooth;
 }
+
 body {
   background: #f0f0ef;
-  color: #000000;
+  color: #000;
   font-family: 'Inter', Roboto, sans-serif;
 }
+
 a,
 button {
   color: inherit;
   cursor: pointer;
 }
 
-/* Navigation */
+/* Navi */
 .site-nav {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
-  background: #ffffff;
+  background: #fff;
   z-index: 100;
   padding: clamp(12px, 1.5vw, 10px);
 }
+
 .site-nav ul {
   display: flex;
   justify-content: left;
@@ -61,9 +67,10 @@ button {
   padding: 0;
   list-style: none;
 }
+
 .site-nav a {
   text-decoration: none;
-  color: #000000;
+  color: #000;
   font-weight: 300;
   font-size: clamp(1.1rem, 2.4vw, 1.1rem);
   padding: .35rem .6rem;
@@ -73,17 +80,19 @@ button {
   transition: transform .28s ease, color .25s ease;
   backface-visibility: hidden;
 }
+
 .site-nav a:hover,
 .site-nav a:focus-visible {
   transform: scale(1.08);
-  color: #000000;
+  color: #000;
 }
 
-/* Abschnitte */
+/* Abschnitt */
 section {
   padding-inline: clamp(16px, 6vw, 120px);
   padding-block: clamp(72px, 12vw, 140px);
 }
+
 section:first-of-type {
   padding-top: clamp(120px, 18vw, 180px);
 }
@@ -96,21 +105,29 @@ section:first-of-type {
   grid-template-columns: 1fr minmax(240px, 36vw);
   min-height: 100svh;
   position: relative;
-  isolation: isolate;
+  z-index: 2;
 }
+
 .start-wrap {
   max-width: 200ch;
   position: relative;
   z-index: 3;
-  color: #ffffff;
+  color: #fff;
   mix-blend-mode: difference;
 }
+
+/* alle Kinder erben die Textfarbe → Mischung klappt sicher */
+.start-wrap * {
+  color: inherit !important;
+}
+
 @supports not (mix-blend-mode: difference) {
   .start-wrap {
-    color: #ffffff;
+    color: #fff;
     text-shadow: 0 0 8px rgba(0,0,0,.65);
   }
 }
+
 .reveal2 {
   font-weight: 300;
   font-size: clamp(3.2rem, 12vw, 10rem);
@@ -119,6 +136,7 @@ section:first-of-type {
   opacity: 0;
   will-change: transform, opacity;
 }
+
 .reveal {
   font-weight: 300;
   font-size: clamp(1.2rem, 4.2vw, 2.5rem);
@@ -128,20 +146,23 @@ section:first-of-type {
   opacity: 0;
   will-change: transform, opacity;
 }
+
 .start-media {
   display: grid;
   place-items: start end;
   position: relative;
 }
+
 .start-media .photo-box {
   aspect-ratio: 1/1;
 }
+
 .photo-box {
-  background: #1b1b1b;
   border-radius: 20px;
   overflow: hidden;
-  opacity: 0;
+  opacity: 1;
 }
+
 .photo-box img {
   width: 100%;
   height: 100%;
@@ -149,33 +170,41 @@ section:first-of-type {
 }
 
 /* About */
+.about {
+  position: relative;
+  z-index: 2;
+}
+
 .about-frame {
   position: relative;
   border-radius: 24px;
   padding: clamp(16px, 4vw, 28px);
 }
+
 .about-grid {
   display: grid;
   gap: clamp(16px, 3.5vw, 36px);
-  grid-template-columns: 1fr 1.3fr;
+  grid-template-columns: 1fr;
 }
-.about-photo {
-  aspect-ratio: 3/4;
-}
+
 .about-panel {
   background: #0f0f0f;
   border-radius: 20px;
   padding: clamp(16px, 3vw, 24px);
+  height: 90vh;
   opacity: 0;
 }
+
 .about-panel h2 {
   margin: 0 0 .6rem 0;
   font-size: clamp(1.3rem, 3vw, 1.8rem);
 }
+
 .about-panel p {
   margin: .4rem 0;
   color: #d8d8d8;
 }
+
 .about-label {
   position: absolute;
   right: -8px;
@@ -189,10 +218,14 @@ section:first-of-type {
 
 /* Projekte */
 .projects {
-  background: #fff;
+  position: relative;
+  z-index: 2;
   margin: 0;
-  padding: 0;
+  padding: 15%;
+  background: #fff;
+  opacity: 0.8;
 }
+
 .projects .section-title {
   margin: 0 auto;
   max-width: 100rem;
@@ -203,9 +236,12 @@ section:first-of-type {
   line-height: 1.1;
   color: #111;
   opacity: 0;
+  display: flex;
+  justify-content: center;
 }
+
 .projects-grid {
-  width: 100%;
+  width: 70%;
   max-width: 100rem;
   margin: 0 auto;
   display: grid;
@@ -213,6 +249,7 @@ section:first-of-type {
   gap: clamp(12px, 2.6vw, 24px);
   padding: min(6vw, 48px) min(4vw, 32px) min(10vw, 80px);
 }
+
 .project-card {
   display: grid;
   gap: .2rem;
@@ -220,17 +257,27 @@ section:first-of-type {
   border-radius: 18px;
   padding: clamp(10px, 1.6vw, 16px);
   opacity: 0;
+  background: #0f0f0f;
 }
+
 .project-card .photo-box {
   aspect-ratio: 3/2;
+  opacity: 1;
 }
+
 .project-card span {
   justify-self: center;
   font-size: clamp(1rem, 2.2vw, 1.5rem);
-  color: #000000;
+  color: #ffffff;
 }
 
-/* Film-Streifen */
+/* Footer */
+.footer {
+  position: relative;
+  z-index: 2;
+}
+
+/* Film (fixer Hintergrund) */
 .film-strip {
   position: fixed;
   left: 0;
@@ -241,10 +288,20 @@ section:first-of-type {
   z-index: 0;
   pointer-events: none;
   perspective: 1100px;
-  filter: var(--filmFilter, none);
-  opacity: var(--filmOp, 1);
-  transition: filter .4s ease, opacity .4s ease;
+  filter: var(--filmFilter);
+  transition: filter .4s ease;
 }
+
+.film-strip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: var(--filmShade);
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+
 .film-track {
   position: absolute;
   inset: 0;
@@ -255,6 +312,7 @@ section:first-of-type {
   will-change: transform;
   transform: translateZ(0);
 }
+
 .film-box {
   flex: 0 0 auto;
   height: 90%;
@@ -266,15 +324,19 @@ section:first-of-type {
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
+
+/* Dim bei Scroll */
 .film-dim {
-  --filmFilter: blur(6px) brightness(.6) contrast(.95); /* unscharf und dunkler */
-  --filmShade: .45; /* Schwarz-Overlay stärker */
+  --filmFilter: blur(6px) brightness(.6) contrast(.95);
+  --filmShade: .55;
 }
 
 /* JS aus */
 html:not(.js) .reveal,
 html:not(.js) .reveal2,
-html:not(.js) .about-panel {
+html:not(.js) .about-panel,
+html:not(.js) .projects .section-title,
+html:not(.js) .project-card {
   opacity: 1;
 }
 
@@ -302,7 +364,6 @@ html:not(.js) .about-panel {
 @media (prefers-reduced-motion: reduce) {
   .film-strip {
     filter: none !important;
-    opacity: 1 !important;
   }
   .reveal,
   .reveal2,
