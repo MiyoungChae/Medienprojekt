@@ -5,17 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Portfolio</title>
 
+  <!-- eigenes CSS -->
   <link rel="stylesheet" href="style3.css" />
 
+  <!-- GSAP -->
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script defer src="main3.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-
+  <script defer src="main3.js"></script>
 </head>
 <body>
 
-  <canvas id="ff" aria-hidden="true"></canvas>
-
+  <!-- Navigation (oben fixiert) -->
   <nav class="site-nav" aria-label="Hauptnavigation">
     <ul>
       <li><a href="#about">ABOUT ME</a></li>
@@ -25,17 +25,72 @@
     </ul>
   </nav>
 
-  <section class="startseite">
+  <!-- Startseite (links Text, rechts Foto-Box) -->
+  <section class="startseite" id="home" aria-label="Hero">
     <div class="start-wrap">
-      <span class="start-guide" aria-hidden="true"></span>
-
       <h1 class="reveal">Miyoung Chae</h1>
       <h1 class="reveal2">PORTFOLIO</h1>
+      <p class="reveal">Ideas into Visuals</p>
+      <p class="reveal">Experiences into Design</p>
+    </div>
 
-      <h1 class="reveal">Ideas into Visuals</h1>
-      <h1 class="reveal">Experiences into Design</h1>
+    <div class="start-media">
+      <div class="photo-box js-ph"></div>
     </div>
   </section>
+
+  <!-- About (links Bild, rechts Text) -->
+  <section class="about" id="about" aria-label="About me">
+    <div class="about-frame">
+      <div class="about-grid">
+        <div class="photo-box js-ph about-photo"></div>
+
+        <div class="about-panel">
+          <h2 class="reveal">About me</h2>
+          <p class="reveal">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer
+            posuere, nibh a hendrerit fermentum, augue quam suscipit augue, non
+            gravida est nisl vel lorem.
+          </p>
+          <p class="reveal">
+            Curabitur et magna vitae arcu consequat interdum. Sed ut orci at quam
+            laoreet bibendum. Vivamus dictum, massa at luctus porttitor, enim
+            tellus varius arcu, id luctus elit lacus sit amet elit.
+          </p>
+          <p class="reveal">
+            Aenean rhoncus, dui vitae elementum dapibus, leo nisl efficitur arcu,
+            in efficitur lectus justo a lectus.
+          </p>
+        </div>
+      </div>
+      <div class="about-label" aria-hidden="true">ABOUT&nbsp;ME</div>
+    </div>
+  </section>
+
+  <!-- Projects (Karten) -->
+  <section class="projects" id="projects" aria-label="Projects">
+    <h2 class="section-title reveal">PROJECTS</h2>
+    <div class="projects-grid">
+      <a class="project-card js-card" href="#" aria-label="Branding">
+        <div class="photo-box js-ph"></div>
+        <span>Branding</span>
+      </a>
+      <a class="project-card js-card" href="#" aria-label="Webdesign">
+        <div class="photo-box js-ph"></div>
+        <span>Webdesign</span>
+      </a>
+      <a class="project-card js-card" href="#" aria-label="Editorial">
+        <div class="photo-box js-ph"></div>
+        <span>Editorial</span>
+      </a>
+      <a class="project-card js-card" href="#" aria-label="Photography">
+        <div class="photo-box js-ph"></div>
+        <span>Photography</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer (Kontakt + Archiv) -->
 
 </body>
 </html>

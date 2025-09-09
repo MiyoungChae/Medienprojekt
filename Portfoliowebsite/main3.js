@@ -1,52 +1,76 @@
-// main3.js (nur Hero + globales Neon-Licht; keine Boxen)
+// Seite: sanftes Fade-Up. In-Viewport sofort, sonst mit ScrollTrigger.
 document.addEventListener('DOMContentLoaded', () => {
-  if (!window.gsap) return;
-
-  // --- Hero-Texte weich einblenden ---
-  const wrap  = document.querySelector('.start-wrap');                  // Bereich mit Titeln
-  const items = wrap ? wrap.querySelectorAll('h1.reveal, h1.reveal2') : null; // alle Titel
-  if (wrap && items && items.length) {
-    gsap.set(wrap,  { y: 64, opacity: 0, force3D: true, willChange: 'transform,opacity' });
-    gsap.set(items, { y: 36, opacity: 0, skewY: 4,  force3D: true, willChange: 'transform,opacity' });
-
-    const tl = gsap.timeline({ defaults: { ease: 'power2.out' } });
-    tl.to(wrap,  { y: 0, opacity: 1, duration: 3.0, ease: 'power3.out' }, 0); // deine 3.0s beibehalten
-    tl.to(items, { y: 0, opacity: 1, skewY: 0, duration: 0.6, stagger: { each: 0.12 } }, 0.12);
+  // GSAP/ScrollTrigger vorhanden?
+  if (!window.gsap) {
+    // Fallback: alles sichtbar machen (CDN blockiert o.ä.)
+    safeShowAll();
+    return;
   }
+  if (window.ScrollTrigger) gsap.registerPlugin(ScrollTrigger);
 
-  // --- Globales Neon-Licht folgt der Maus (über die ganze Seite) ---
-  // Element dynamisch erzeugen (kein HTML ändern nötig)
-  const glow = document.createElement('div');
-  glow.id = 'cursorGlow';
-  document.body.appendChild(glow);
+  const ease = 'power2.out';
+  const Y0   = 40;          // Start-Y
+  const START_POS = 0.85;   // "top 85%"
 
-  let gx = 0, gy = 0, ticking = false;
-
-  const move = (e) => {
-    gx = e.clientX; gy = e.clientY;
-    if (!ticking) {
-      ticking = true;
-      requestAnimationFrame(() => {
-        glow.style.left = gx + 'px';
-        glow.style.top  = gy + 'px';
-        ticking = false;
-      });
-    }
-    glow.style.opacity = '1';
+  // 요소가 이미 화면 안에 있는지 체크
+  const inView = (el) => {
+    const r = el.getBoundingClientRect();
+    return r.top <= window.innerHeight * START_POS;
   };
 
-  const leave = () => { glow.style.opacity = '0'; };
+  // 개별 요소에 안전한 페이드업 적용
+  const fadeUpSmart = (selector, delayStep = 0.08, duration = 1.0) => {
+    const els = gsap.utils.toArray(selector);
+    els.forEach((el, i) => {
+      const anim = () => gsap.fromTo(el,
+        { y: Y0, opacity: 0 },
+        { y: 0, opacity: 1, duration, ease, delay: i * delayStep }
+      );
 
-  window.addEventListener('mousemove', move);
-  window.addEventListener('mouseleave', leave);
+      if (inView(el) || !window.ScrollTrigger) {
+        // 이미 보이는 경우: 즉시 애니메이션
+        anim();
+      } else {
+        // 스크롤로 들어올 때 실행
+        ScrollTrigger.create({
+          trigger: el,
+          start: `top ${Math.round(START_POS*100)}%`,
+          once: true,
+          onEnter: anim
+        });
+      }
+    });
+  };
 
-  // Touch (optional)
-  window.addEventListener('touchmove', (e) => {
-    const t = e.touches && e.touches[0];
-    if (!t) return;
-    glow.style.left = t.clientX + 'px';
-    glow.style.top  = t.clientY + 'px';
-    glow.style.opacity = '1';
-  }, { passive: true });
-  window.addEventListener('touchend', leave);
+  // Hero 먼저
+  fadeUpSmart('.startseite .reveal2', 0.00, 1.15);
+  fadeUpSmart('.startseite .reveal',  0.08, 1.00);
+
+  // 나머지
+  fadeUpSmart('.photo-box',    0.10, 1.00);
+  fadeUpSmart('.about-panel',  0.10, 1.00);
+  fadeUpSmart('.project-card', 0.10, 1.00);
+  fadeUpSmart('.section-title',0.00, 1.00);
+  fadeUpSmart('.footer .reveal',0.06, 1.00);
+
+  // 폰트/이미지 로딩 후 레이아웃 확정 → 트리거 재계산
+  const doRefresh = () => window.ScrollTrigger && ScrollTrigger.refresh(true);
+  window.addEventListener('load', doRefresh, { once: true });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(doRefresh).catch(()=>{});
+  }
+
+  // 혹시라도 1.5초 내 애니메이션 못 받으면 가시화(안전)
+  setTimeout(() => {
+    const anyHidden = document.querySelector(
+      '.reveal[style*="opacity: 0"], .reveal2[style*="opacity: 0"]'
+    );
+    if (anyHidden) safeShowAll();
+  }, 1500);
+
+  // ---- utils ----
+  function safeShowAll(){
+    gsap.set('.reveal, .reveal2, .photo-box, .about-panel, .project-card, .section-title, .footer .reveal',
+      { opacity: 1, y: 0 });
+  }
 });
