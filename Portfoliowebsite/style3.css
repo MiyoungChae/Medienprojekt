@@ -1,3 +1,4 @@
+
 /* Schrift */
 @font-face {
   font-family: 'Inter';
@@ -37,8 +38,8 @@ html {
 }
 
 body {
-  background: #f0f0ef;
-  color: #000;
+  background: #111111;
+  color: #ffffff;
   font-family: 'Inter', Roboto, sans-serif;
 }
 
@@ -48,43 +49,61 @@ button {
   cursor: pointer;
 }
 
-/* Navi */
-.site-nav {
+/* Navi Container*/
+
+.site-nav{
   position: fixed;
-  top: 0;
-  left: 0;
+  z-index: 9999;
+  background-color: #111;
   width: 100%;
-  background: #fff;
-  z-index: 100;
-  padding: clamp(12px, 1.5vw, 10px);
+  
 }
 
-.site-nav ul {
+.nav{
+  position: relative;
   display: flex;
-  justify-content: left;
+  align-items: center;
+  justify-content: space-between;
+  padding-left: 50px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+}
+
+/* Logo */
+.nav-logo a{
+  font-weight: 500;
+  font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+  color: #fff;
+  text-decoration: none;
+  
+}
+
+.nav-menu{
+  display: flex;
+  justify-content: center;
   gap: clamp(18px, 6vw, 100px);
-  margin-left: 5rem;
-  padding: 0;
+  margin: 0 auto;
   list-style: none;
 }
-
-.site-nav a {
+.nav-menu a{
   text-decoration: none;
-  color: #000;
-  font-weight: 300;
+  color: #ffffff;
   font-size: clamp(1.1rem, 2.4vw, 1.1rem);
   padding: .35rem .6rem;
   display: inline-block;
-  transform: scale(1);
-  transform-origin: center;
-  transition: transform .28s ease, color .25s ease;
-  backface-visibility: hidden;
+  transition:  transform .28s ease;
+
 }
+
+.nav-menu a:hover{
+  transform: scale(1.1);
+}
+
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  transform: scale(1.08);
-  color: #000;
+  transform: scale(1.1\2);
+  color: #ffffff;
 }
 
 /* Abschnitt */
@@ -105,28 +124,35 @@ section:first-of-type {
   grid-template-columns: 1fr minmax(240px, 36vw);
   min-height: 100svh;
   position: relative;
-  z-index: 2;
+  z-index: auto;
+  transform: none;
+  opacity: 1; 
+  filter: none;
+  isolation: auto;
 }
 
 .start-wrap {
   max-width: 200ch;
   position: relative;
   z-index: 3;
-  color: #fff;
+  color: #000000; mix-blend-mode: normal;
+  mix-blend-mode: difference;
+  background: transparent !important
+}
+.start-wrap .blend-on{
+  color: #fff; 
   mix-blend-mode: difference;
 }
 
+.start-media {
+   z-index: 1;
+   position: relative; } 
+
 /* alle Kinder erben die Textfarbe → Mischung klappt sicher */
 .start-wrap * {
-  color: inherit !important;
+  color: inherit !important; background: transparent;
 }
 
-@supports not (mix-blend-mode: difference) {
-  .start-wrap {
-    color: #fff;
-    text-shadow: 0 0 8px rgba(0,0,0,.65);
-  }
-}
 
 .reveal2 {
   font-weight: 300;
@@ -169,28 +195,102 @@ section:first-of-type {
   object-fit: cover;
 }
 
+/* Karte: Overlay richtig platzieren */
+.project-card {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Overlay */
+.card-overlay {
+  position: absolute; 
+  inset: 0;            
+  display: grid;       
+  align-items: center;
+  justify-items: center;
+  gap: 0;         
+  padding: 5rem;     
+  text-align: center;  
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.6));
+  backdrop-filter: blur(3px);
+  opacity: 0;          
+  transform: translateY(8px);
+  transition: opacity .28s ease, transform .28s ease;
+}
+
+/* Titel */
+.ov-title {
+  margin: 0 0 .3rem 0;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2.4vw, 2.0rem);
+  color: #fff;
+}
+
+/* Text (DE: hellgrau) */
+.ov-text {
+   margin: 0 0 .3rem 0;
+  color: #eaeaea;
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+}
+
+/* CTA (DE: Knopf-Optik) */
+.ov-cta {
+  display: inline-block;
+  margin-top: 3rem;
+  padding: .55rem .9rem;
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #111;
+  font-weight: 600;
+  font-size: .95rem;
+  text-decoration: none;
+  padding: 3%;
+  transform: translateY(2px);
+  transition: transform .2s ease;
+}
+
+/* Hover/Fokus: Overlay anzeigen (DE: zeigen) */
+.project-card:hover .card-overlay,
+.project-card:focus-within .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* CTA kleine Reaktion (DE: lebendig) */
+.project-card:hover .ov-cta,
+.project-card:focus-within .ov-cta {
+  transform: translateY(0);
+}
+
+/* alter Titel unten ausblenden, wenn Overlay da ist (DE: sauber) */
+.project-card:hover > span,
+.project-card:focus-within > span {
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+
 /* About */
 .about {
   position: relative;
   z-index: 2;
+  margin: 20px;
+  background: #000000;
+  border-radius: 50px;
+  height: 90vh;
+  opacity: 0;
+  
 }
 
 .about-frame {
-  position: relative;
-  border-radius: 24px;
-  padding: clamp(16px, 4vw, 28px);
-}
-
-.about-grid {
   display: grid;
   gap: clamp(16px, 3.5vw, 36px);
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 2fr;
 }
 
 .about-panel {
   background: #0f0f0f;
   border-radius: 20px;
-  padding: clamp(16px, 3vw, 24px);
   height: 90vh;
   opacity: 0;
 }
@@ -205,31 +305,22 @@ section:first-of-type {
   color: #d8d8d8;
 }
 
-.about-label {
-  position: absolute;
-  right: -8px;
-  top: 50%;
-  transform: translateY(-50%) rotate(-90deg);
-  letter-spacing: .18em;
-  font-weight: 600;
-  color: #dcdcdc;
-  opacity: .85;
-}
 
 /* Projekte */
 .projects {
   position: relative;
   z-index: 2;
   margin: 0;
-  padding: 15%;
+  padding: clamp(30px, 1.6vw, 70px);
   background: #fff;
-  opacity: 0.8;
+  opacity: 1;
+  
 }
 
 .projects .section-title {
   margin: 0 auto;
   max-width: 100rem;
-  padding: min(6vw, 48px) min(4vw, 32px) 0;
+  padding: clamp(30px, 1.6vw, 100px);
   font-family: 'Montserrat', sans-serif;
   font-weight: 600;
   font-size: clamp(1.3rem, 3.2vw, 3rem);
@@ -247,7 +338,7 @@ section:first-of-type {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: clamp(12px, 2.6vw, 24px);
-  padding: min(6vw, 48px) min(4vw, 32px) min(10vw, 80px);
+   padding: clamp(30px, 1.6vw, 100px);
 }
 
 .project-card {
@@ -274,7 +365,10 @@ section:first-of-type {
 /* Footer */
 .footer {
   position: relative;
+  height: 50%;
   z-index: 2;
+  background-color: #fff;
+  margin: 0;
 }
 
 /* Film (fixer Hintergrund) */
@@ -318,7 +412,7 @@ section:first-of-type {
   height: 90%;
   aspect-ratio: 3 / 2;
   border-radius: 16px;
-  background: linear-gradient(180deg,#d9d9d9,#bdbdbd);
+  background: #bd2904;
   box-shadow: 0 1px 0 rgba(235,234,234,.35) inset, 0 16px 40px rgba(0,0,0,.18);
   backface-visibility: hidden;
   transform-origin: 50% 50%;
@@ -348,6 +442,7 @@ html:not(.js) .project-card {
   .start-media {
     order: -1;
     place-items: center;
+    margin-left: -6vw;
   }
   .about-grid {
     grid-template-columns: 1fr;

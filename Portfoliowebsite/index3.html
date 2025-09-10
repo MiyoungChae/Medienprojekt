@@ -29,18 +29,21 @@
 
   <!-- Navigation (oben fixiert) -->
   <nav class="site-nav" aria-label="Hauptnavigation">
-    <ul>
+    <div class="nav">
+    <div class="nav-logo"><a href="#home">CHAE ___<BR>MIYOUNG</a></div>
+    <ul class="nav-menu">
       <li><a href="#about">ABOUT ME</a></li>
       <li><a href="#projects">PROJECTS</a></li>
       <li><a href="#contact">CONTACT</a></li>
       <li><a href="#archiv">ARCHIV</a></li>
     </ul>
+    </div>
   </nav>
 
   <!-- Startseite (links Text, rechts Foto-Box) -->
   <section class="startseite" id="home" aria-label="Hero">
     <div class="start-wrap">
-      <h1 class="reveal">Miyoung Chae</h1>
+      <h1 class="reveal">Medien Design</h1>
       <h1 class="reveal2">PORTFOLIO</h1>
       <p class="reveal">Ideas into Visuals</p>
       <p class="reveal">Experiences into Design</p>
@@ -53,7 +56,6 @@
   <!-- About (links Bild, rechts Text) -->
   <section class="about" id="about" aria-label="About me">
     <div class="about-frame">
-      <div class="about-grid">
         
         <div class="about-panel">
           <h2 class="reveal">About me</h2>
@@ -61,43 +63,65 @@
           <p class="reveal">Curabitur et magna vitae arcu consequat interdum. Sed ut orci at quam laoreet bibendum. Vivamus dictum, massa at luctus porttitor, enim tellus varius arcu, id luctus elit lacus sit amet elit.</p>
           <p class="reveal">Aenean rhoncus, dui vitae elementum dapibus, leo nisl efficitur arcu, in efficitur lectus justo a lectus.</p>
         </div>
-      </div>
-      <div class="about-label" aria-hidden="true">ABOUT&nbsp;ME</div>
+
     </div>
   </section>
 
   <!-- Projects (Karten) -->
+
   <section class="projects" id="projects" aria-label="Projects">
+
     <h2 class="section-title reveal">PROJECTS</h2>
+
     <div class="projects-grid">
-      <a class="project-card js-card" href="#" aria-label="Branding">
+
+      <a class="project-card js-card" href="#" aria-label="Logo Design">
         <div class="photo-box js-ph"></div>
-        <span>Branding</span>
+         <div class="card-overlay" aria-hidden="false">
+         <h3 class="ov-title">Logo Design</h3>
+         <p class="ov-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit .</p>
+         <span class="ov-cta">View more →</span>
+         </div>
       </a>
+
       <a class="project-card js-card" href="#" aria-label="Webdesign">
         <div class="photo-box js-ph"></div>
-        <span>Webdesign</span>
-      </a>
-      <a class="project-card js-card" href="#" aria-label="Editorial">
+        
+        <div class="card-overlay" aria-hidden="false">
+         <h3 class="ov-title">Webdesign</h3>
+         <p class="ov-text">Lorem ipsum dolor sit, amet consectetur adipisicing elit .</p>
+         <span class="ov-cta">View more →</span>
+         </div>
+      </a>   
+
+        <a class="project-card js-card" href="#" aria-label="Print Designy">
         <div class="photo-box js-ph"></div>
-        <span>Editorial</span>
-      </a>
-      <a class="project-card js-card" href="#" aria-label="Photography">
+        <div class="card-overlay" aria-hidden="false">
+         <h3 class="ov-title">Print Design</h3>
+         <p class="ov-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus unde odio ipsam! 
+          Optio deserunt illo quas velit officia pariatur perspiciatis.</p>
+         <span class="ov-cta">View more →</span>
+         </div>
+         </a>
+         
+
+      <a class="project-card js-card" href="#" aria-label="3D Modeling">
         <div class="photo-box js-ph"></div>
-        <span>Photography</span>
+        
+        <div class="card-overlay" aria-hidden="false">
+         <h3 class="ov-title">3D Modeling</h3>
+         <p class="ov-text">Lorem ipsum dolor sit amet consectetur adipisicing elit. 
+          Necessitatibus nesciunt impedit iusto molestiae, similique maiores.</p>
+         <span class="ov-cta">View more →</span>
+         </div>
       </a>
+
     </div>
   </section>
 
   <!-- Footer (Kontakt + Archiv) -->
   <footer class="footer" id="contact">
-    <div class="contact reveal">
-      <p>Thanks for visiting.</p>
-      <p><a href="mailto:you@example.com">you@example.com</a></p>
-    </div>
-    <div id="archiv" class="archiv reveal">
-      <p>Archiv · 2023–2025</p>
-    </div>
+
   </footer>
 
 </body>
