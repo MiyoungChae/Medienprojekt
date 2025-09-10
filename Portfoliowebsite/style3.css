@@ -1,20 +1,28 @@
-
 /* Schrift */
 @font-face {
   font-family: 'Inter';
-  src: url('fonts/Inter-Regular.woff2') format('woff2');
+  src: url('../fonts/Inter-Regular.woff2') format('woff2');
   font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  src: url('fonts/Montserrat-SemiBold.woff2') format('woff2');
-  font-weight: 600;
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  src: url('../fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 200 800;
   font-style: normal;
   font-display: swap;
 }
+
 
 /* Film-Variablen */
 :root {
@@ -23,19 +31,14 @@
 }
 
 /* Basis */
-* {
-  box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
-html,
-body {
+html, body {
   height: 100%;
   margin: 0;
 }
 
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
 body {
   background: #111111;
@@ -43,20 +46,19 @@ body {
   font-family: 'Inter', Roboto, sans-serif;
 }
 
-a,
-button {
+a, button {
   color: inherit;
   cursor: pointer;
 }
 
-/* Navi Container*/
+
+/* ---------------------Navi Container----------------------------*/
 
 .site-nav{
   position: fixed;
   z-index: 9999;
   background-color: #111;
   width: 100%;
-  
 }
 
 .nav{
@@ -69,15 +71,16 @@ button {
   padding-bottom: 20px;
 }
 
-/* Logo */
+/* -------- Logo ----------*/
 .nav-logo a{
+  font-family: "Plus Jakarta Sans";
   font-weight: 500;
-  font-size: clamp(1.2rem, 2.8vw, 1.7rem);
+  font-size: clamp(1.2rem, 2.8vw, 1.5rem);
   color: #fff;
   text-decoration: none;
-  
 }
 
+/* -------- Menü ----------*/
 .nav-menu{
   display: flex;
   justify-content: center;
@@ -87,77 +90,91 @@ button {
 }
 .nav-menu a{
   text-decoration: none;
-  color: #ffffff;
-  font-size: clamp(1.1rem, 2.4vw, 1.1rem);
+  color: #dedede;
+  font-weight: 300;
+  font-size: clamp(1.0rem, 2.4vw, 1.1rem); /* min <= mid <= max */
   padding: .35rem .6rem;
   display: inline-block;
-  transition:  transform .28s ease;
-
+  transition: transform .28s ease;
 }
-
-.nav-menu a:hover{
-  transform: scale(1.1);
-}
-
+.nav-menu a:hover{ transform: scale(1.1); }
 
 .site-nav a:hover,
 .site-nav a:focus-visible {
-  transform: scale(1.1\2);
+  transform: scale(1.1);
   color: #ffffff;
 }
 
-/* Abschnitt */
+/* -------- Hamburger (Desktop aus, Mobile an) ----------*/
+.nav-toggle{
+  appearance:none; -webkit-appearance:none;
+  border:0; background:transparent; padding:0; margin:0;
+  width:44px; height:44px;
+  display:none; /* Desktop aus */
+  color:#fff;
+}
+.nav-toggle .bar{
+  display:block; width:22px; height:2px; background:#fff; margin:4px 0;
+  transition: transform .25s ease, opacity .25s ease;
+}
+.site-nav.open .nav-toggle .bar:nth-child(1){ transform:translateY(6px) rotate(45deg); }
+.site-nav.open .nav-toggle .bar:nth-child(2){ opacity:0; }
+.site-nav.open .nav-toggle .bar:nth-child(3){ transform:translateY(-6px) rotate(-45deg); }
+
+
+/* -------------------------- Startseite ----------------------------*/
+
 section {
   padding-inline: clamp(16px, 6vw, 120px);
   padding-block: clamp(72px, 12vw, 140px);
+
 }
 
+/* nur Abstand für erste Section */
 section:first-of-type {
   padding-top: clamp(120px, 18vw, 180px);
 }
 
-/* Startseite */
+/* Grid/Center direkt auf der Startseite (Hero bleibt links zentriert) */
 .startseite {
   display: grid;
   align-items: center;
   gap: clamp(16px, 5vw, 64px);
   grid-template-columns: 1fr minmax(240px, 36vw);
-  min-height: 100svh;
+  height: 100%;
   position: relative;
   z-index: auto;
   transform: none;
-  opacity: 1; 
+  opacity: 1;
   filter: none;
   isolation: auto;
 }
 
 .start-wrap {
-  max-width: 200ch;
+  --edge: clamp(12px, 2.5vw, 24px);
+  padding-left: var(--edge);
+  max-width: 100%;
   position: relative;
-  z-index: 3;
-  color: #000000; mix-blend-mode: normal;
+  z-index: 2;
+  color: #000000;
   mix-blend-mode: difference;
-  background: transparent !important
+  background: transparent !important;
 }
 .start-wrap .blend-on{
-  color: #fff; 
+  color: #fff;
   mix-blend-mode: difference;
 }
-
-.start-media {
-   z-index: 1;
-   position: relative; } 
 
 /* alle Kinder erben die Textfarbe → Mischung klappt sicher */
 .start-wrap * {
-  color: inherit !important; background: transparent;
+  color: inherit !important;
+  background: transparent;
 }
 
-
 .reveal2 {
-  font-weight: 300;
-  font-size: clamp(3.2rem, 12vw, 10rem);
-  line-height: .95;
+  font-weight: 700;
+  font-size: clamp(3.2rem, 12vw, 8rem);
+  line-height: .95;               /* fix: saubere Zeilenhöhe */
   margin: 0 0 .2em 0;
   opacity: 0;
   will-change: transform, opacity;
@@ -165,121 +182,44 @@ section:first-of-type {
 
 .reveal {
   font-weight: 300;
-  font-size: clamp(1.2rem, 4.2vw, 2.5rem);
-  line-height: 1.4;
+  font-size: clamp(1.2rem, 4.2vw, 2.3rem);
+  line-height: 1.35;              /* fix: zu enge Zeilenhöhe → normal */
   margin: 0;
-  padding-left: 1.2rem;
+  padding-left: 0;                 /* fix: linke Kante angleichen */
   opacity: 0;
   will-change: transform, opacity;
 }
 
 .start-media {
+  z-index: 1;
+  position: relative;
   display: grid;
   place-items: start end;
-  position: relative;
 }
 
-.start-media .photo-box {
-  aspect-ratio: 1/1;
-}
+.start-media .photo-box { aspect-ratio: 1/1; }
 
 .photo-box {
   border-radius: 20px;
   overflow: hidden;
   opacity: 1;
 }
-
 .photo-box img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-/* Karte: Overlay richtig platzieren */
-.project-card {
-  position: relative;
-  overflow: hidden;
-}
 
-/* Overlay */
-.card-overlay {
-  position: absolute; 
-  inset: 0;            
-  display: grid;       
-  align-items: center;
-  justify-items: center;
-  gap: 0;         
-  padding: 5rem;     
-  text-align: center;  
-  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.6));
-  backdrop-filter: blur(3px);
-  opacity: 0;          
-  transform: translateY(8px);
-  transition: opacity .28s ease, transform .28s ease;
-}
-
-/* Titel */
-.ov-title {
-  margin: 0 0 .3rem 0;
-  font-weight: 600;
-  font-size: clamp(1.1rem, 2.4vw, 2.0rem);
-  color: #fff;
-}
-
-/* Text (DE: hellgrau) */
-.ov-text {
-   margin: 0 0 .3rem 0;
-  color: #eaeaea;
-  font-size: clamp(.9rem, 2vw, 1.2rem);
-}
-
-/* CTA (DE: Knopf-Optik) */
-.ov-cta {
-  display: inline-block;
-  margin-top: 3rem;
-  padding: .55rem .9rem;
-  border: 1px solid #fff;
-  border-radius: 999px;
-  color: #111;
-  font-weight: 600;
-  font-size: .95rem;
-  text-decoration: none;
-  padding: 3%;
-  transform: translateY(2px);
-  transition: transform .2s ease;
-}
-
-/* Hover/Fokus: Overlay anzeigen (DE: zeigen) */
-.project-card:hover .card-overlay,
-.project-card:focus-within .card-overlay {
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* CTA kleine Reaktion (DE: lebendig) */
-.project-card:hover .ov-cta,
-.project-card:focus-within .ov-cta {
-  transform: translateY(0);
-}
-
-/* alter Titel unten ausblenden, wenn Overlay da ist (DE: sauber) */
-.project-card:hover > span,
-.project-card:focus-within > span {
-  opacity: 0;
-  transition: opacity .2s ease;
-}
-
-
-/* About */
+/* -------------------------- About me ---------------------------- */
 .about {
   position: relative;
   z-index: 2;
   margin: 20px;
   background: #000000;
   border-radius: 50px;
-  height: 90vh;
+  height: 100vh;
   opacity: 0;
-  
 }
 
 .about-frame {
@@ -299,32 +239,30 @@ section:first-of-type {
   margin: 0 0 .6rem 0;
   font-size: clamp(1.3rem, 3vw, 1.8rem);
 }
-
 .about-panel p {
   margin: .4rem 0;
   color: #d8d8d8;
 }
 
 
-/* Projekte */
+/* -----------------------------Projekte ------------------------*/
 .projects {
   position: relative;
   z-index: 2;
   margin: 0;
-  padding: clamp(30px, 1.6vw, 70px);
   background: #fff;
   opacity: 1;
-  
 }
 
 .projects .section-title {
-  margin: 0 auto;
-  max-width: 100rem;
-  padding: clamp(30px, 1.6vw, 100px);
-  font-family: 'Montserrat', sans-serif;
+  margin: 0;
+  padding-top: 70px;
+  padding-bottom: 30px;
+  max-width: 100%;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
   font-size: clamp(1.3rem, 3.2vw, 3rem);
-  line-height: 1.1;
+  line-height: 1.5;
   color: #111;
   opacity: 0;
   display: flex;
@@ -332,13 +270,12 @@ section:first-of-type {
 }
 
 .projects-grid {
-  width: 70%;
-  max-width: 100rem;
+  width: 100%;
+  max-width: 80rem;
   margin: 0 auto;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(2, 1fr); /* Desktop: 2 Spalten */
   gap: clamp(12px, 2.6vw, 24px);
-   padding: clamp(30px, 1.6vw, 100px);
 }
 
 .project-card {
@@ -349,6 +286,8 @@ section:first-of-type {
   padding: clamp(10px, 1.6vw, 16px);
   opacity: 0;
   background: #0f0f0f;
+  position: relative;
+  overflow: hidden;
 }
 
 .project-card .photo-box {
@@ -362,6 +301,71 @@ section:first-of-type {
   color: #ffffff;
 }
 
+/* Overlay */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 0;
+  padding: 5rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.6));
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .28s ease, transform .28s ease;
+
+  /* fix: Inhalte wirklich mittig, Karten unabhängig vom Text gleich */
+  place-content: center;
+}
+
+/* Titel */
+.ov-title {
+  margin: 0 0 .3rem 0;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2.4vw, 2.0rem);
+  color: #fff;
+}
+
+/* Text */
+.ov-text {
+  margin: 0 0 .3rem 0;
+  color: #eaeaea;
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+}
+
+/* CTA */
+.ov-cta {
+  display: inline-block;
+  margin-top: 3rem;
+  padding: .55rem .9rem; /* doppelte padding entfernt */
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #111;
+  font-weight: 600;
+  font-size: .80rem;
+  text-decoration: none;
+  transform: translateY(2px);
+  transition: transform .2s ease;
+}
+
+/* Hover/Fokus: Overlay anzeigen */
+.project-card:hover .card-overlay,
+.project-card:focus-within .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* alter Titel ausblenden, wenn Overlay da ist */
+.project-card:hover > span,
+.project-card:focus-within > span {
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+
 /* Footer */
 .footer {
   position: relative;
@@ -371,7 +375,8 @@ section:first-of-type {
   margin: 0;
 }
 
-/* Film (fixer Hintergrund) */
+
+/* -------------------------- Film (fixer Hintergrund) ----------------*/
 .film-strip {
   position: fixed;
   left: 0;
@@ -385,7 +390,6 @@ section:first-of-type {
   filter: var(--filmFilter);
   transition: filter .4s ease;
 }
-
 .film-strip::after {
   content: "";
   position: absolute;
@@ -395,7 +399,6 @@ section:first-of-type {
   pointer-events: none;
   transition: opacity .4s ease;
 }
-
 .film-track {
   position: absolute;
   inset: 0;
@@ -406,7 +409,6 @@ section:first-of-type {
   will-change: transform;
   transform: translateZ(0);
 }
-
 .film-box {
   flex: 0 0 auto;
   height: 90%;
@@ -434,38 +436,84 @@ html:not(.js) .project-card {
   opacity: 1;
 }
 
-/* Responsive */
+
+/* -------------------------- Responsive ----------------------------*/
+
+/* Tablet (<= 980px) */
 @media (max-width: 980px) {
+  /* Hero untereinander */
   .startseite {
     grid-template-columns: 1fr;
+    gap: clamp(12px, 4.5vw, 40px);
+    min-height: min(100svh, 820px);
   }
   .start-media {
-    order: -1;
+    order: -1;           /* Bild oben */
     place-items: center;
-    margin-left: -6vw;
+    margin-left: 0;
   }
-  .about-grid {
+
+  /* About 1 Spalte */
+  .about-frame {
     grid-template-columns: 1fr;
+    gap: clamp(12px, 4vw, 28px);
   }
-  .about-label {
-    display: none;
+  .about, .about-panel {
+    height: auto;
+    min-height: 52vh;
   }
+
+  /* Projekte 2 Spalten beibehalten */
   .projects-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(10px, 2.8vw, 20px);
+    max-width: 72rem;
   }
+  .card-overlay { padding: clamp(28px, 5vw, 48px); }
 }
 
-/* Weniger Bewegung */
-@media (prefers-reduced-motion: reduce) {
-  .film-strip {
-    filter: none !important;
+/* Smartphone (<= 680px) */
+@media (max-width: 680px) {
+  /* Hamburger an, Menü als Dropdown */
+  .nav { position: relative; }
+  .nav-toggle { display: flex; align-items: center; justify-content: center; }
+
+  .nav-menu{
+    position: absolute;
+    top: 100%; left: 0; right: 0;
+    background: #111;
+    border-top: 1px solid rgba(255,255,255,.08);
+    display: flex; flex-direction: column; align-items: flex-start;
+    gap: 12px;
+    padding: 14px clamp(14px,5.5vw,24px) 18px;
+    margin: 0;
+    transform: translateY(-8px);
+    opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease;
+    z-index: 10000;
   }
-  .reveal,
-  .reveal2,
-  .photo-box,
-  .about-panel,
-  .project-card,
-  .projects .section-title {
-    opacity: 1 !important;
+  .site-nav.open .nav-menu{
+    transform: translateY(0);
+    opacity: 1; pointer-events: auto;
   }
+
+  /* Abstände kompakter */
+  section {
+    padding-inline: clamp(14px, 5.5vw, 24px);
+    padding-block: clamp(48px, 10vw, 96px);
+  }
+
+  /* Projekte 1 Spalte */
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(10px, 3.2vw, 18px);
+    max-width: 48rem;
+  }
+
+  .project-card { padding: clamp(8px, 2.6vw, 12px); border-radius: 16px; }
+  .project-card .photo-box { aspect-ratio: 4 / 3; }
+
+  .start-wrap { padding-left: clamp(10px, 2.4vw, 18px); }
+  .start-media .photo-box { aspect-ratio: 4 / 5; }
+  .card-overlay { padding: clamp(24px, 6vw, 40px); }
 }

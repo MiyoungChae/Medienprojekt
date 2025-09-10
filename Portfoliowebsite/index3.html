@@ -10,6 +10,31 @@
   <script defer src="main3.js"></script>
 </head>
 <body>
+    <!--------------- Navigation (fix oben) -------------------->
+<header class="site-nav">
+  <nav class="nav" aria-label="Hauptnavigation">
+    <div class="nav-logo">
+      <a href="#home">CHAE<br>MIYOUNG</a>
+    </div>
+
+    <button class="nav-toggle"
+            aria-label="Menü öffnen"
+            aria-controls="main-menu"
+            aria-expanded="false">
+      <span class="bar"></span><span class="bar"></span><span class="bar"></span>
+    </button>
+
+    <ul class="nav-menu" id="main-menu">
+      <li><a href="#about">ABOUT ME</a></li>
+      <li><a href="#projects">PROJECTS</a></li>
+      <li><a href="#contact">CONTACT</a></li>
+      <li><a href="#archiv">ARCHIV</a></li>
+    </ul>
+  </nav>
+</header>
+
+
+  <!-------------- Startseite (links Text, rechts Foto-Box) ------------->
 
   <!-- Film-Hintergrund (global fix) -->
   <div class="film-strip" aria-hidden="true">
@@ -27,20 +52,7 @@
     </div>
   </div>
 
-  <!-- Navigation (oben fixiert) -->
-  <nav class="site-nav" aria-label="Hauptnavigation">
-    <div class="nav">
-    <div class="nav-logo"><a href="#home">CHAE ___<BR>MIYOUNG</a></div>
-    <ul class="nav-menu">
-      <li><a href="#about">ABOUT ME</a></li>
-      <li><a href="#projects">PROJECTS</a></li>
-      <li><a href="#contact">CONTACT</a></li>
-      <li><a href="#archiv">ARCHIV</a></li>
-    </ul>
-    </div>
-  </nav>
-
-  <!-- Startseite (links Text, rechts Foto-Box) -->
+  
   <section class="startseite" id="home" aria-label="Hero">
     <div class="start-wrap">
       <h1 class="reveal">Medien Design</h1>
@@ -70,7 +82,6 @@
   <!-- Projects (Karten) -->
 
   <section class="projects" id="projects" aria-label="Projects">
-
     <h2 class="section-title reveal">PROJECTS</h2>
 
     <div class="projects-grid">
