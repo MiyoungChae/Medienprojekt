@@ -2,7 +2,7 @@
 @font-face {
   font-family: 'Inter';
   src: url('../fonts/Inter-Regular.woff2') format('woff2');
-  font-weight: 400;
+  font-weight: 100 900;
   font-style: normal;
   font-display: swap;
 }
@@ -10,7 +10,7 @@
 @font-face {
   font-family: 'Plus Jakarta Sans';
   src: url('../fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf') format('truetype');
-  font-weight: 200 800;
+  font-weight: 100 800;
   font-style: italic;
   font-display: swap;
 }
@@ -18,7 +18,7 @@
 @font-face {
   font-family: 'Plus Jakarta Sans';
   src: url('../fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
-  font-weight: 200 800;
+  font-weight: 100 800;
   font-style: normal;
   font-display: swap;
 }
@@ -260,7 +260,7 @@ section:first-of-type {
   padding-bottom: 30px;
   max-width: 100%;
   font-family: 'Inter', sans-serif;
-  font-weight: 600;
+  font-weight: 700;
   font-size: clamp(1.3rem, 3.2vw, 3rem);
   line-height: 1.5;
   color: #111;
@@ -323,7 +323,7 @@ section:first-of-type {
 
 /* Titel */
 .ov-title {
-  margin: 0 0 .3rem 0;
+  margin: 0 0 .3rem .0 !important;
   font-weight: 600;
   font-size: clamp(1.1rem, 2.4vw, 2.0rem);
   color: #fff;
@@ -459,8 +459,9 @@ html:not(.js) .project-card {
     gap: clamp(12px, 4vw, 28px);
   }
   .about, .about-panel {
-    height: auto;
+    height: 100%;
     min-height: 52vh;
+    width: 100%;
   }
 
   /* Projekte 2 Spalten beibehalten */
@@ -492,6 +493,31 @@ html:not(.js) .project-card {
     transition: opacity .25s ease, transform .25s ease;
     z-index: 10000;
   }
+
+  .nav-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;   
+    gap: 7px;                
+    height: 44px;
+    padding-right: 2rem;
+    margin: 0;
+    border: 0;
+    background: transparent;
+    color: #fff;
+  }
+
+  .nav-toggle .bar {
+    display: block;
+    width: 38px;
+    height: 2px;
+    background: #fff;
+    margin: 0;
+    transition: transform .25s ease, opacity .25s ease;
+  }
+
+
   .site-nav.open .nav-menu{
     transform: translateY(0);
     opacity: 1; pointer-events: auto;
