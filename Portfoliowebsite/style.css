@@ -59,7 +59,7 @@ a, button {
 
 .site-nav{
   position: fixed;
-  z-index: 9999;
+  z-index: 2147483000; /* very high so menu and previews are above page layout */
   background-color: #111;
   width: 100%;
 }
@@ -70,8 +70,9 @@ a, button {
   align-items: center;
   justify-content: center; /* center content horizontally by default */
   padding-left: 50px;
-  padding-top: calc(40px * 1.1 * 1.1); /* cumulative further +10% */
-  padding-bottom: calc(40px * 1.1 * 1.1); /* cumulative further +10% */
+  /* move header down one line: increase top padding */
+  padding-top: calc(56px * 1.1 * 1.1); /* was 40px base, increased to 56px */
+  padding-bottom: calc(48px * 1.1 * 1.1); /* slightly larger bottom padding for balance */
 }
 
 /* -------- Logo ----------*/
@@ -109,28 +110,23 @@ a, button {
 }
 
 .nav-menu a {
-  font-size: clamp(1rem, 2.4vw, 1.1rem); /* normal klein */
+  font-size: clamp(1.05rem, 2.6vw, 1.15rem); /* slightly larger base and max */
   font-weight: 300; /* leicht */
   text-decoration: none; /* keine Linie */
   color: #dedede; /* hellgrau */
   transition: transform .28s ease; /* weich */
 }
 
-.nav-toggle {
-  display: none; /* Desktop/Tablet aus */
+/* Top navigation links */
+.nav-menu a {
+  display: inline-block; /* allow transforms without affecting layout */
+  font-size: clamp(1rem, 2.4vw, 1.1rem); /* normal klein */
+  font-weight: 300; /* leicht */
+  text-decoration: none; /* keine Linie */
+  color: #dedede; /* hellgrau */
+  transition: transform .28s ease, color .18s ease; /* ensure smooth scaling */
 }
 
-.nav-menu a:hover{ transform: scale(1.1); }
-
-.site-nav a:hover,
-.site-nav a:focus-visible {
-  transform: scale(1.1);
-  color: #ffffff;
-}
-
-
-
-/* -------- Hamburger (Desktop aus, Mobile an) ----------*/
 .nav-toggle{
   appearance:none; -webkit-appearance:none;
   border:0; background:transparent; padding:0; margin:0;
@@ -139,6 +135,10 @@ a, button {
   color:#fff;
   position: relative; z-index: 10001; 
 }
+.nav-menu a:hover{ transform: scale(1.08); color: #ffffff; }
+
+/* Ensure hover/focus on any site-nav links also scale (keep specificity a bit higher) */
+.site-nav .nav-menu a:focus-visible { transform: scale(1.08); color: #ffffff; }
 .nav-toggle .bar{
   display:block; width:22px; height:2px; background:#fff; margin:4px 0;
   transition: transform .25s ease, opacity .25s ease;
@@ -173,7 +173,8 @@ section:first-of-type {
   transform: none;
   opacity: 1;
   filter: none;
-  isolation: auto;
+  /* ensure mix-blend-mode in children can blend with page background */
+  isolation: unset;
 }
 
 .start-wrap {
@@ -236,16 +237,77 @@ section:first-of-type {
   object-fit: cover;
 }
 
+/* Remove any visible borders/outlines around photo boxes globally */
+.photo-box,
+.photo-box img,
+.profile-photo,
+.about-media .photo-box,
+.project-card .photo-box,
+.nav-preview,
+.nav-preview::before {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 
 /* -------------------------- About me ---------------------------- */
 .about {
   position: relative;
   z-index: 2;
-  margin: 20px;
-  background: #000000;
+  margin: 0;
+  background: transparent;
   border-radius: 50px;
   height: 100vh;
+  
   opacity: 0;
+}
+
+/* Black frame that covers ~90% of viewport width, top corners rounded.
+   Rendered behind the about content but above page background; it scrolls with the section. */
+/* Black frame that covers ~90% of viewport width, top corners rounded.
+   Rendered behind the about content but above page background; it scrolls with the section. */
+.about::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  /* place below the top navigation: use CSS var set from JS */
+  top: var(--nav-height, 0px);
+  transform: translateX(-50%);
+  width: 95vw;
+  /* reduce height by the nav height so it doesn't overlap the header */
+  height: calc(100% - var(--nav-height, 0px));
+  /* fully opaque black frame (opacity 1) */
+  background: #000;
+  border-radius: 18px 18px 0 0; /* round top corners only */
+  z-index: 200; /* frame above the dim overlay */
+  pointer-events: none;
+}
+
+/* Ensure about content sits above the black frame */
+.about > .about-frame,
+.about .about-panel,
+.about .about-media {
+  position: relative;
+  z-index: 201; /* ensure about content sits above frame */
+}
+
+/* Full-viewport dim overlay controlled by CSS variable --about-dim (0..1) */
+/* Overlay bound to the .about element so it can't appear above other sections */
+.about::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw; /* match the black frame */
+  top: var(--nav-height, 0px);
+  height: calc(100% - var(--nav-height, 0px));
+  /* gradient: smaller fully-transparent top area (10%) → semi-transparent black at bottom */
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,var(--about-dim, 0)) 100%);
+  z-index: 150; /* below the about frame (200+) but above page background */
+  pointer-events: none;
+  border-radius: 18px 18px 0 0; /* match about frame rounded top corners */
+  transition: background .18s linear, top .12s linear, height .12s linear;
 }
 
 .about-frame {
@@ -254,12 +316,15 @@ section:first-of-type {
   grid-template-columns: 1fr 2fr;
 }
 
-.about-panel {
-  background: #0f0f0f;
-  border-radius: 20px;
-  height: 90vh;
-  opacity: 0;
-}
+/* profile photo block */
+.about-media { display:block; }
+.profile-photo { position: relative; border-radius: 20px; overflow: hidden; }
+.profile-photo picture,
+.profile-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+/* semi-transparent black overlay to unify tone */
+
+
 
 .about-panel h2 {
   margin: 0 0 .6rem 0;
@@ -275,15 +340,17 @@ section:first-of-type {
 .projects {
   position: relative;
   z-index: 2;
-  margin: 0;
+  margin: 0 auto; /* center the section */
   background: #fff;
   opacity: 1;
+  width: 95vw;
+  /* constrain and keep centered on large screens */
 }
 
 .projects .section-title {
   margin: 0;
-  padding-top: 70px;
-  padding-bottom: 30px;
+  padding-top: 60px;
+  padding-bottom: 40px;
   max-width: 100%;
   font-family: 'Inter', sans-serif;
   font-weight: 700;
@@ -392,13 +459,41 @@ section:first-of-type {
 }
 
 
-/* Footer */
+/* Footer (transparent — DO NOT change page background) */
 .footer {
   position: relative;
-  height: 50%;
   z-index: 2;
-  background-color: #fff;
+  background: transparent; /* keep underlying page background intact */
   margin: 0;
+  /* increased by 1.5x */
+  padding: clamp(84px, 12vw, 144px) clamp(16px, 6vw, 120px);
+  border-top: 1px solid rgba(255,255,255,0.03);
+}
+
+.footer-inner{
+  display: flex;
+  gap: clamp(12px, 4vw, 40px);
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.footer-brand{ display:flex; flex-direction:column; gap:6px; }
+.footer-logo{ font-family: 'Plus Jakarta Sans'; font-weight:600; color:#fff; text-decoration:none; letter-spacing:0.06em; }
+.footer-note{ margin:0; font-size: .9rem; color: #bfbfbf; }
+.footer-nav ul{ display:flex; gap:clamp(20px, 4vw, 48px); margin:0; padding:0; list-style:none; }
+.footer-nav a{ color: #cfcfcf; text-decoration:none; font-size: .95rem; opacity:0.95; display:inline-block; transform-origin: center; transition: transform .18s ease, color .18s ease; }
+.footer-nav a:hover, .footer-nav a:focus{ color:#fff; text-decoration:none; transform: scale(1.06); }
+.footer-contact{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.footer-email{ color:#cfcfcf; text-decoration:none; font-size:.95rem }
+.footer-social a{ color:#cfcfcf; text-decoration:none; margin-left:10px; font-size:.9rem; opacity:0.95 }
+
+.footer-bottom{ margin-top:48px; text-align:center; color:#999; font-size:.82rem; }
+
+@media (max-width: 860px){
+  .footer-inner{ flex-direction:column; align-items:flex-start; }
+  .footer-contact{ align-items:flex-start; }
+  .footer-nav ul{ flex-wrap:wrap; gap:18px; }
 }
 
 
@@ -510,6 +605,8 @@ html:not(.js) .project-card {
   .nav-toggle {
     display: none;
   }
+  /* ensure logo has sufficient left offset on tablet so it doesn't sit too close to the centered menu */
+  .nav-logo { left: clamp(18px, 6vw, 100px); }
   .nav-menu {
     position: static;
     inset: auto;
@@ -525,6 +622,15 @@ html:not(.js) .project-card {
     pointer-events: auto;
     background: transparent;
   }
+  .nav-menu a {
+    display: inline-block; /* allow transforms without affecting layout */
+    font-size: clamp(1.05rem, 2.6vw, 1.15rem); /* slightly larger */
+    font-weight: 300; /* leicht */
+    text-decoration: none; /* keine Linie */
+    color: #dedede; /* hellgrau */
+    transition: transform .28s ease, color .18s ease; /* ensure smooth scaling */
+  }
+
 }
 
 /* Smartphone (<= 680px) */
@@ -578,7 +684,7 @@ html:not(.js) .project-card {
     justify-content: start;
     align-items: flex-end;
     padding: clamp(24px, 6vw, 40px) clamp(18px, 7vw, 48px);
-    padding-top: clamp(150px, 14vw, 128px); /* mehr Platz über dem Menü für Header */
+  padding-top: clamp(176px, 14vw, 148px); /* bumped so menu visually sits lower after header padding increase */
     gap: clamp(12px, 3.5vw, 50px);
     opacity: 0;
     transform: translateY(6px);
@@ -594,7 +700,7 @@ html:not(.js) .project-card {
 
   /* Große Links im Overlay */
   .nav-menu a {
-    font-size: clamp(1.4rem, 7vw, 2.2rem);
+    font-size: clamp(1.55rem, 7.6vw, 2.4rem); /* larger mobile menu text */
     font-weight: 600;
     letter-spacing: .01em;
     padding: .2em 0;
@@ -604,6 +710,85 @@ html:not(.js) .project-card {
   .nav-menu a:hover {
     color: #fff;
   }
+
+  /* Small preview box for mobile overlay (appears next to hovered/tapped item) */
+  .nav-menu li { position: relative; display:flex; align-items:center; }
+
+  .nav-preview {
+  position: absolute;
+  right: calc(100% + 36px); /* larger gap requested */
+  top: 50%;
+  transform: translateY(-50%) translateX(8px) scale(.98);
+  /* ~30% larger */
+  width: clamp(138px, 38vw, 280px);
+  height: clamp(98px, 32vw, 219px);
+  border-radius: 10px;
+  background: #e8e8e8; /* plain light gray */
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .22s ease, transform .28s cubic-bezier(.2,.9,.2,1);
+  will-change: opacity;
+  z-index: 3; /* topmost */
+  }
+    /* floating fixed preview when JS positions it (ensures it's above all layout) */
+    .nav-preview.floating {
+      position: fixed !important;
+      right: auto !important;
+      transform: translateY(0) scale(1) !important;
+      pointer-events: none;
+    }
+    .nav-preview.floating.visible {
+      opacity: 1 !important;
+      animation: navPreviewFade 1s ease both;
+    }
+
+  /* show on hover / focus-within */
+  .site-nav.open .nav-menu li:hover .nav-preview,
+  .site-nav.open .nav-menu li:focus-within .nav-preview {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0) scale(1);
+  animation: navPreviewFade 1s ease both; /* slower fade-only entrance */
+  }
+
+  /* show when JS toggles .hovering (touch fallback) */
+  .site-nav.open .nav-menu li.hovering .nav-preview {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
+  }
+
+  /* fade-only entrance to avoid any horizontal movement */
+  @keyframes navPreviewFade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  /* prefer opacity transition for smoother out animation; avoid conflicting transform transitions */
+  .nav-preview { transition: opacity .28s ease; }
+
+  /* ensure the active menu link is above its preview so text never gets hidden */
+  .site-nav.open .nav-menu li:hover > a,
+  .site-nav.open .nav-menu li:focus-within > a,
+  .site-nav.open .nav-menu li.hovering > a {
+  position: relative;
+  z-index: 2; /* one below preview so preview sits above text */
+  background: transparent; /* do not change visuals */
+  }
+
+  /* decorative inner placeholder for image area */
+  .nav-preview::before { 
+    content: ''; 
+    position: absolute; 
+    inset: 8px; 
+    z-index: 4; 
+    border-radius: 8px; 
+    background: #e8e8e8; 
+    display:block; 
+  }
+
+  /* previews vertically centered to their corresponding menu item's center */
+  /* removed per-item offsets so each preview aligns with its menu item */
+
+  /* ...existing mobile menu styles... */
 
   /* Abstände kompakter */
   section {

@@ -25,10 +25,26 @@
     </button>
 
     <ul class="nav-menu" id="main-menu">
-      <li><a href="#about">ABOUT ME</a></li>
-      <li><a href="#projects">PROJECTS</a></li>
-      <li><a href="#contact">CONTACT</a></li>
-      <li><a href="#archiv">ARCHIV</a></li>
+      <li>
+        <a href="#about">ABOUT ME</a>
+        <div class="nav-preview" aria-hidden="true"></div>
+      </li>
+      <li>
+        <a href="#projects">PROJECTS</a>
+        <div class="nav-preview" aria-hidden="true"></div>
+      </li>
+      <li>
+        <a href="#contact">CONTACT</a>
+        <div class="nav-preview" aria-hidden="true"></div>
+      </li>
+      <li>
+        <a href="#archiv">ARCHIV</a>
+        <div class="nav-preview" aria-hidden="true"></div>
+      </li>
+      <li>
+        <a href="impressum.html">IMPRESSUM</a>
+        <div class="nav-preview" aria-hidden="true"></div>
+      </li>
     </ul>
   </nav>
 </header>
@@ -55,10 +71,10 @@
   
   <section class="startseite" id="home" aria-label="Hero">
     <div class="start-wrap">
-      <h1 class="reveal">Medien Design</h1>
-      <h1 class="reveal2">PORTFOLIO</h1>
-      <p class="reveal">Ideas into Visuals</p>
-      <p class="reveal">Experiences into Design</p>
+      <h1 class="reveal blend-on">Medien Design</h1>
+      <h1 class="reveal2 blend-on">PORTFOLIO</h1>
+      <p class="reveal blend-on">Ideas into Visuals</p>
+      <p class="reveal blend-on">Experiences into Design</p>
     </div>
     <div class="start-media">
       <div class="photo-box js-ph"></div>
@@ -67,16 +83,14 @@
 
   <!-- About (links Bild, rechts Text) -->
   <section class="about" id="about" aria-label="About me">
-    <div class="about-frame">
-        
-        <div class="about-panel">
+  <div class="about-frame">
+    <div class="about-panel">
           <h2 class="reveal">About me</h2>
           <p class="reveal">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer posuere, nibh a hendrerit fermentum, augue quam suscipit augue, non gravida est nisl vel lorem.</p>
           <p class="reveal">Curabitur et magna vitae arcu consequat interdum. Sed ut orci at quam laoreet bibendum. Vivamus dictum, massa at luctus porttitor, enim tellus varius arcu, id luctus elit lacus sit amet elit.</p>
           <p class="reveal">Aenean rhoncus, dui vitae elementum dapibus, leo nisl efficitur arcu, in efficitur lectus justo a lectus.</p>
         </div>
-
-    </div>
+  </div>
   </section>
 
   <!-- Projects (Karten) -->
@@ -131,9 +145,35 @@
   </section>
 
   <!-- Footer (Kontakt + Archiv) -->
-  <footer class="footer" id="contact">
+    <footer class="footer" id="contact" aria-label="Footer">
+      <div class="footer-inner">
+        <div class="footer-brand">
+          <a href="#home" class="footer-logo">CHAE MIYOUNG</a>
+          <p class="footer-note">Medien Design — Portfolio</p>
+        </div>
 
-  </footer>
+        <nav class="footer-nav" aria-label="Footer navigation">
+          <ul>
+            <li><a href="#about">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li><a href="#archiv">Archiv</a></li>
+          </ul>
+        </nav>
+
+        <div class="footer-contact">
+          <a href="mailto:hello@example.com" class="footer-email">hello@example.com</a>
+          <div class="footer-social" aria-hidden="false">
+            <a href="#" aria-label="Instagram">IG</a>
+            <a href="#" aria-label="Behance">BE</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <small>© <span id="year">2025</span> CHAE MIYOUNG — All rights reserved.</small>
+      </div>
+    </footer>
 
 </body>
 </html>
