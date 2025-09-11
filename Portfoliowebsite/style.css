@@ -40,6 +40,9 @@ html, body {
 
 html { scroll-behavior: smooth; }
 
+/* Reset base font-size to normal in case it was changed */
+html { font-size: 100% !important; }
+
 body {
   background: #111111;
   color: #ffffff;
@@ -65,10 +68,10 @@ a, button {
   position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center; /* center content horizontally by default */
   padding-left: 50px;
-  padding-top: 20px;
-  padding-bottom: 20px;
+  padding-top: calc(40px * 1.1 * 1.1); /* cumulative further +10% */
+  padding-bottom: calc(40px * 1.1 * 1.1); /* cumulative further +10% */
 }
 
 /* -------- Logo ----------*/
@@ -78,25 +81,45 @@ a, button {
   font-size: clamp(1.2rem, 2.8vw, 1.5rem);
   color: #fff;
   text-decoration: none;
+ 
 }
 
+/* Center the menu while keeping logo left and toggle right */
+.nav-logo { position: absolute; left: 50px; top: 50%; transform: translateY(-50%); z-index: 10002; }
+.nav-toggle { position: absolute; right: 50px; top: 50%; transform: translateY(-50%); }
+.nav-menu { position: relative; margin: 0 auto; }
+
 /* -------- Menü ----------*/
-.nav-menu{
-  display: flex;
-  justify-content: center;
-  gap: clamp(18px, 6vw, 100px);
-  margin: 0 auto;
-  list-style: none;
+/* -------- Menü (Desktop/Tablet Basis) ----------*/
+.nav-menu {
+  display: flex; /* sichtbar */
+  flex-direction: row; /* horizontal */
+  justify-content: center; 
+  align-items: center; /* mittig vertikal */
+  gap: clamp(18px, 6vw, 100px); /* Abstand */
+  margin: 0; /* kein Außenabstand */
+  padding: 0; /* kein Innenabstand */
+  list-style: none; /* keine Punkte */
 }
-.nav-menu a{
-  text-decoration: none;
-  color: #dedede;
-  font-weight: 300;
-  font-size: clamp(1.0rem, 2.4vw, 1.1rem); /* min <= mid <= max */
-  padding: .35rem .6rem;
-  display: inline-block;
-  transition: transform .28s ease;
+
+.nav-menu li {
+  list-style: none; /* keine Punkte */
+  margin: 0; /* Reset */
+  padding: 0; /* Reset */
 }
+
+.nav-menu a {
+  font-size: clamp(1rem, 2.4vw, 1.1rem); /* normal klein */
+  font-weight: 300; /* leicht */
+  text-decoration: none; /* keine Linie */
+  color: #dedede; /* hellgrau */
+  transition: transform .28s ease; /* weich */
+}
+
+.nav-toggle {
+  display: none; /* Desktop/Tablet aus */
+}
+
 .nav-menu a:hover{ transform: scale(1.1); }
 
 .site-nav a:hover,
@@ -105,6 +128,8 @@ a, button {
   color: #ffffff;
 }
 
+
+
 /* -------- Hamburger (Desktop aus, Mobile an) ----------*/
 .nav-toggle{
   appearance:none; -webkit-appearance:none;
@@ -112,6 +137,7 @@ a, button {
   width:44px; height:44px;
   display:none; /* Desktop aus */
   color:#fff;
+  position: relative; z-index: 10001; 
 }
 .nav-toggle .bar{
   display:block; width:22px; height:2px; background:#fff; margin:4px 0;
@@ -441,6 +467,7 @@ html:not(.js) .project-card {
 
 /* Tablet (<= 980px) */
 @media (max-width: 980px) {
+
   /* Hero untereinander */
   .startseite {
     grid-template-columns: 1fr;
@@ -448,7 +475,7 @@ html:not(.js) .project-card {
     min-height: min(100svh, 820px);
   }
   .start-media {
-    order: -1;           /* Bild oben */
+    order: -1; /* Bild oben */
     place-items: center;
     margin-left: 0;
   }
@@ -458,56 +485,79 @@ html:not(.js) .project-card {
     grid-template-columns: 1fr;
     gap: clamp(12px, 4vw, 28px);
   }
-  .about, .about-panel {
+  .about {
+    height: 100%;
+    min-height: 52vh;
+    width: 100%;
+  }
+  .about-panel {
     height: 100%;
     min-height: 52vh;
     width: 100%;
   }
 
-  /* Projekte 2 Spalten beibehalten */
+  /* Projekte 2 Spalten */
   .projects-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: clamp(10px, 2.8vw, 20px);
     max-width: 72rem;
   }
-  .card-overlay { padding: clamp(28px, 5vw, 48px); }
+  .card-overlay {
+    padding: clamp(28px, 5vw, 48px);
+  }
+
+  /* Navi sichtbar horizontal */
+  .nav-toggle {
+    display: none;
+  }
+  .nav-menu {
+    position: static;
+    inset: auto;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: clamp(18px, 6vw, 100px);
+    padding: 0;
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+    background: transparent;
+  }
 }
 
 /* Smartphone (<= 680px) */
 @media (max-width: 680px) {
-  /* Hamburger an, Menü als Dropdown */
-  .nav { position: relative; }
-  .nav-toggle { display: flex; align-items: center; justify-content: center; }
 
-  .nav-menu{
-    position: absolute;
-    top: 100%; left: 0; right: 0;
-    background: #111;
-    border-top: 1px solid rgba(255,255,255,.08);
-    display: flex; flex-direction: column; align-items: flex-start;
-    gap: 12px;
-    padding: 14px clamp(14px,5.5vw,24px) 18px;
-    margin: 0;
-    transform: translateY(-8px);
-    opacity: 0; pointer-events: none;
-    transition: opacity .25s ease, transform .25s ease;
-    z-index: 10000;
+  /* Header oben behalten */
+  .site-nav {
+    z-index: 10050; /* über Menü */
   }
 
+  /* Hamburger sichtbar */
+  .nav {
+    position: relative;
+  }
   .nav-toggle {
     display: flex;
     align-items: center;
     justify-content: center;
-    flex-direction: column;   
-    gap: 7px;                
+    flex-direction: column;
+    gap: 7px;
+    width: 44px;
     height: 44px;
-    padding-right: 2rem;
+    padding: 0;
     margin: 0;
     border: 0;
     background: transparent;
     color: #fff;
+    position: absolute; /* ensure it's at the right edge of the header */
+    right: clamp(12px, 4vw, 24px);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10051; /* über Menü */
   }
-
   .nav-toggle .bar {
     display: block;
     width: 38px;
@@ -517,10 +567,42 @@ html:not(.js) .project-card {
     transition: transform .25s ease, opacity .25s ease;
   }
 
+  /* Vollbild-Menü unter dem Header */
+  .nav-menu {
+    position: fixed;
+    inset: 0;
+    height: 100%;
+    background: #111;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    align-items: flex-end;
+    padding: clamp(24px, 6vw, 40px) clamp(18px, 7vw, 48px);
+    padding-top: clamp(150px, 14vw, 128px); /* mehr Platz über dem Menü für Header */
+    gap: clamp(12px, 3.5vw, 50px);
+    opacity: 0;
+    transform: translateY(6px);
+    pointer-events: none;
+    transition: opacity .28s ease, transform .28s ease;
+    z-index: 10000; /* unter Header */
+  }
+  .site-nav.open .nav-menu {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
 
-  .site-nav.open .nav-menu{
-    transform: translateY(0);
-    opacity: 1; pointer-events: auto;
+  /* Große Links im Overlay */
+  .nav-menu a {
+    font-size: clamp(1.4rem, 7vw, 2.2rem);
+    font-weight: 600;
+    letter-spacing: .01em;
+    padding: .2em 0;
+    color: #dedede;
+    text-decoration: none;
+  }
+  .nav-menu a:hover {
+    color: #fff;
   }
 
   /* Abstände kompakter */
@@ -535,11 +617,20 @@ html:not(.js) .project-card {
     gap: clamp(10px, 3.2vw, 18px);
     max-width: 48rem;
   }
-
-  .project-card { padding: clamp(8px, 2.6vw, 12px); border-radius: 16px; }
-  .project-card .photo-box { aspect-ratio: 4 / 3; }
-
-  .start-wrap { padding-left: clamp(10px, 2.4vw, 18px); }
-  .start-media .photo-box { aspect-ratio: 4 / 5; }
-  .card-overlay { padding: clamp(24px, 6vw, 40px); }
+  .project-card {
+    padding: clamp(8px, 2.6vw, 12px);
+    border-radius: 16px;
+  }
+  .project-card .photo-box {
+    aspect-ratio: 4 / 3;
+  }
+  .start-wrap {
+    padding-left: clamp(10px, 2.4vw, 18px);
+  }
+  .start-media .photo-box {
+    aspect-ratio: 4 / 5;
+  }
+  .card-overlay {
+    padding: clamp(24px, 6vw, 40px);
+  }
 }

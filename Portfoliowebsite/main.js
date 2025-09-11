@@ -1,5 +1,17 @@
 // alles weich, stabil, mit negativem Text
 document.addEventListener('DOMContentLoaded', () => {
+  // Wenn die Seite neu geladen wird, sicherstellen, dass wir auf die Start-Section zeigen
+  try {
+    if (window.location && window.location.hash && window.location.hash !== '#home') {
+      // Verhindere zusätzliches History-Eintrag
+      history.replaceState(null, '', '#home');
+      // sanft scrollen (oder direkt, falls smooth nicht erwünscht)
+      const startEl = document.getElementById('home');
+      if (startEl) startEl.scrollIntoView({ behavior: 'auto' });
+    }
+  } catch (e) {
+    // ignore
+  }
   // sagt: JS ist aktiv
   document.documentElement.classList.add('js');
 
@@ -34,7 +46,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- SANFTE FADE-UP ANIMATIONEN ---
   const ease = 'power3.out'; // weiche Bewegung
   const Y0 = 28;             // Start von unten
-  const START = 'top 85%';   // wann starten
+  const START = 'top 80%';   // wann starten (Element bei 80% Sichtbarkeit)
 
   // mehrere Elemente mit Fade-Up
   const up = (sel, each = 0.08, dur = 1.25) => {
@@ -52,7 +64,8 @@ document.addEventListener('DOMContentLoaded', () => {
           scrollTrigger: {
             trigger: el,
             start: START,
-            toggleActions: 'play none none none' // nicht zurückspringen
+            // play on enter, and also play when entering back from above
+            toggleActions: 'play none play none'
           }
         }
       );
@@ -72,28 +85,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.film-track');  // Reihe mit .film-box
     if (!strip || !track) return;
 
-    // Grund-Boxen (mind. 10)
-    let base = Array.from(track.querySelectorAll('.film-box'));
-    if (base.length === 0) {
+    // Grund-Boxen (mind. 10) - merken als originals
+    let originals = Array.from(track.querySelectorAll('.film-box'));
+    if (originals.length === 0) {
       for (let i = 0; i < 10; i++) {
         const b = document.createElement('div');
         b.className = 'film-box';
         track.appendChild(b);
       }
-      base = Array.from(track.querySelectorAll('.film-box'));
+      originals = Array.from(track.querySelectorAll('.film-box'));
     }
 
-    // Reihe auffüllen (für Endlosschleife)
+    // Reihe auffüllen (für Endlosschleife) - klone nur die originalen Elemente
     const ensureFill = () => {
       let guard = 0;
       while (track.scrollWidth < window.innerWidth * 3 && guard++ < 50) {
-        base.forEach(b => track.appendChild(b.cloneNode(true)));
+        originals.forEach(b => track.appendChild(b.cloneNode(true)));
       }
     };
 
-    // Breite einer Runde berechnen
-    const roundWidth = () =>
-      base.reduce((s, el) => s + el.getBoundingClientRect().width, 0);
+    // Breite einer Runde berechnen (aktuelle DOM-Elemente berücksichtigen)
+    const roundWidth = () => {
+      const boxes = Array.from(track.querySelectorAll('.film-box'));
+      return boxes.reduce((s, el) => s + el.getBoundingClientRect().width, 0);
+    };
 
     // 3D/“Konkav”-Look
     const depth = 280; // Tiefe
@@ -150,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const amp2 = 0.22;     // kleine Welle
     const f1   = 0.40;     // Frequenz 1
     const f2   = 0.55;     // Frequenz 2
-    const holdMs = 70;     // kurze Pause an “Bildkanten”
+  const holdMs = 10;     // kurze Pause an “Bildkanten" (verringert die Pause zwischen Sprüngen)
 
     // Laufwerte
     let x = 0;                    // Position
@@ -233,6 +248,38 @@ document.addEventListener('DOMContentLoaded', () => {
       requestAnimationFrame(loop);
     });
 
+    // Menü: auf/zu (nur Mobile, Desktop bleibt gleich)
+const siteHeader = document.querySelector('.site-nav');   // <header class="site-nav">
+const toggleBtn  = document.querySelector('.nav-toggle'); // Hamburger-Button
+const mainMenu   = document.getElementById('main-menu');  // <ul id="main-menu">
+
+if (siteHeader && toggleBtn && mainMenu) {
+  toggleBtn.addEventListener('click', () => {
+    const open = siteHeader.classList.toggle('open');  // .site-nav.open toggeln
+    toggleBtn.setAttribute('aria-expanded', String(open));
+    document.body.classList.toggle('no-scroll', open); // Scroll sperren bei offen
+  });
+
+  // Menü schließen beim Link-Klick
+  mainMenu.addEventListener('click', (e) => {
+    if (e.target.closest('a')) {
+      siteHeader.classList.remove('open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('no-scroll');
+    }
+  });
+
+  // (optional) ESC zum Schließen
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      siteHeader.classList.remove('open');
+      toggleBtn.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('no-scroll');
+    }
+  });
+}
+
+
     // Dim-Effekt beim Scroll (unverändert, stört ScrollTrigger nicht)
     const onScroll = () => {
       const rect = hero ? hero.getBoundingClientRect() : null;
@@ -254,6 +301,11 @@ document.addEventListener('DOMContentLoaded', () => {
         boxW = f ? f.getBoundingClientRect().width : 0;
         W    = roundWidth();
         apply3D();
+        // Falls ScrollTrigger/GSAP Animationen vorhanden sind, neu berechnen
+        if (window.ScrollTrigger && typeof window.ScrollTrigger.refresh === 'function') {
+          // refresh nach Layout-Änderung, damit ScrollTrigger seine Trigger neu berechnet
+          window.ScrollTrigger.refresh();
+        }
       });
     }, { passive: true });
   })();
