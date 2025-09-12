@@ -137,7 +137,457 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', updateAboutDim, { passive: true });
     // initial check
     setTimeout(updateAboutDim, 50);
+
+    // --- Brief scroll hold when About black frame reaches top ---
+    // We detect when the .about::before frame's top (aboutSection.top + navHeight)
+    // meets the viewport top and then freeze scroll for a short duration.
+  let holdActive = false;
+  let lastTriggerTs = 0;
+  const HOLD_MS = 2000; // ~2 seconds pause
+  // require a few wheel scrolls while in trigger window before engaging hold
+  const REQUIRED_WHEELS = 3;
+  const COUNT_RESET_MS = 1200; // reset if user pauses too long
+  const TRIGGER_WINDOW = 120; // px below top to consider "at top"
+  let zoneActive = false;     // true when frame top is near viewport top
+  let wheelCount = 0;
+  let lastWheelTs = 0;
+
+    const preventScrollEvents = (e) => {
+      // Allow interactions if hold not active
+      if (!holdActive) return;
+      // Prevent default scrolling gestures during hold
+      if (e.type === 'keydown') {
+        const keys = ['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '];
+        if (keys.includes(e.key)) { e.preventDefault(); }
+      } else {
+        e.preventDefault();
+      }
+    };
+
+    const enableHold = () => {
+      if (holdActive) return;
+      holdActive = true;
+      document.body.classList.add('about-hold');
+      // Freeze body visually at current scroll position
+      const scrollY = window.scrollY || window.pageYOffset || 0;
+      const scrollX = window.scrollX || window.pageXOffset || 0;
+      document.body.dataset.freezeY = String(scrollY);
+      document.body.dataset.freezeX = String(scrollX);
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.left = `-${scrollX}px`;
+      document.body.classList.add('scroll-freeze');
+      // capture typical scroll inputs
+      window.addEventListener('wheel', preventScrollEvents, { passive: false });
+      window.addEventListener('touchmove', preventScrollEvents, { passive: false });
+      window.addEventListener('keydown', preventScrollEvents, { passive: false });
+      setTimeout(disableHold, HOLD_MS);
+    };
+
+    const disableHold = () => {
+      if (!holdActive) return;
+      holdActive = false;
+      document.body.classList.remove('about-hold');
+      // Unfreeze body and restore scroll position
+      const y = parseInt(document.body.dataset.freezeY || '0', 10) || 0;
+      const x = parseInt(document.body.dataset.freezeX || '0', 10) || 0;
+      document.body.classList.remove('scroll-freeze');
+      document.body.style.top = '';
+      document.body.style.left = '';
+      // restore scroll instantly
+      window.scrollTo(x, y);
+      window.removeEventListener('wheel', preventScrollEvents, { passive: false });
+      window.removeEventListener('touchmove', preventScrollEvents, { passive: false });
+      window.removeEventListener('keydown', preventScrollEvents, { passive: false });
+    };
+
+    const checkAboutTop = () => {
+      const rect = aboutSection.getBoundingClientRect();
+      const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 0;
+      // when the black frame top reaches viewport top, trigger hold
+      const frameTopToViewport = rect.top + navH; // distance from viewport top
+      const now = performance.now();
+      // consider within a window around 0 (top) so we can catch it reliably
+      if (frameTopToViewport <= 0 && frameTopToViewport > -TRIGGER_WINDOW) {
+        if (!zoneActive) {
+          zoneActive = true;
+          wheelCount = 0;
+          lastWheelTs = 0;
+        }
+      } else {
+        zoneActive = false;
+        wheelCount = 0;
+      }
+    };
+
+    window.addEventListener('scroll', checkAboutTop, { passive: true });
+    // run once to initialize state
+    checkAboutTop();
+
+    // count downward wheel/keyboard scrolls while in zone, then hold
+    const snapToFrameTop = () => {
+      const rect = aboutSection.getBoundingClientRect();
+      const navH = parseInt(getComputedStyle(document.documentElement).getPropertyValue('--nav-height')) || 0;
+      const delta = rect.top + navH; // how far to move to align top to 0
+      if (Math.abs(delta) > 0.5) {
+        const x = window.scrollX || window.pageXOffset || 0;
+        const y = (window.scrollY || window.pageYOffset || 0) + delta;
+        // instant jump; ignore global smooth behavior
+        try { window.scrollTo({ left: x, top: y, behavior: 'auto' }); }
+        catch(_) { window.scrollTo(x, y); }
+      }
+    };
+
+    const tryCountAndHold = () => {
+      if (!zoneActive) return;
+      const now = performance.now();
+      if (lastWheelTs && (now - lastWheelTs) > COUNT_RESET_MS) {
+        wheelCount = 0;
+      }
+      lastWheelTs = now;
+      wheelCount++;
+      if (wheelCount >= REQUIRED_WHEELS && (now - lastTriggerTs) > (HOLD_MS + 600)) {
+        lastTriggerTs = now;
+        zoneActive = false; // avoid double trigger until we leave zone
+        wheelCount = 0;
+        // snap to exact top position, then freeze
+        snapToFrameTop();
+        enableHold();
+      }
+    };
+
+    const onWheelCount = (e) => {
+      // Only count downward scrolls (typical when entering About)
+      if (e.deltaY > 0) tryCountAndHold();
+    };
+    const onKeyCount = (e) => {
+      if (!zoneActive) return;
+      const keysDown = ['ArrowDown','PageDown','End',' '];
+      if (keysDown.includes(e.key)) tryCountAndHold();
+    };
+    const onTouchCount = () => {
+      // treat a touchmove while in zone as a scroll tick
+      tryCountAndHold();
+    };
+
+    window.addEventListener('wheel', onWheelCount, { passive: true });
+    window.addEventListener('keydown', onKeyCount, { passive: true });
+    window.addEventListener('touchmove', onTouchCount, { passive: true });
   }
+
+  // About image: no special effects or JS triggers
+
+  // (quick menu removed)
+
+  // Projector-style reveal for About photo
+  (function initProjectorReveal(){
+    const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const monitor = document.querySelector('.about .crt-monitor');
+    if (!monitor) return;
+
+    // mark as projector target for CSS
+    monitor.classList.add('projector');
+    const img = monitor.querySelector('img');
+
+    if (prefersReduced) {
+      // show immediately for reduced motion users (no animations)
+      monitor.classList.add('projector-on');
+      // immediately announce that projector is ready
+  window.dispatchEvent(new CustomEvent('about-projector-ready'));
+  // ensure pixel overlay intensifies and holds
+  monitor.classList.add('pixel-intensify');
+      return;
+    }
+
+    // trigger once when the monitor is slightly visible
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setTimeout(() => {
+      monitor.classList.add('projector-on');
+            // when the main projector animation finishes, announce readiness
+            if (img) {
+              const onAnimEnd = (e) => {
+                if (e && e.animationName !== 'projectorOn') return; // wait for the reveal anim
+                img.removeEventListener('animationend', onAnimEnd);
+                window.dispatchEvent(new CustomEvent('about-projector-ready'));
+        // trigger pixel intensify once after reveal completes
+        monitor.classList.add('pixel-intensify');
+              };
+              // if styles change and animation may not fire, fallback announce after duration
+              const fallbackTimer = setTimeout(() => {
+                img && img.removeEventListener && img.removeEventListener('animationend', onAnimEnd);
+                window.dispatchEvent(new CustomEvent('about-projector-ready'));
+              }, 3000); // buffer beyond the 2400ms reveal to ensure we don't fire early
+              img.addEventListener('animationend', (e) => {
+                if (e.animationName === 'projectorOn') {
+                  clearTimeout(fallbackTimer);
+                }
+                onAnimEnd(e);
+              }, { once: true });
+            } else {
+              // no image element found; announce readiness shortly after
+              setTimeout(() => {
+                window.dispatchEvent(new CustomEvent('about-projector-ready'));
+                monitor.classList.add('pixel-intensify');
+              }, 1600);
+            }
+          }, 1000); // 1s initial delay before turning on
+          io.disconnect();
+        }
+      });
+    }, { root: null, threshold: 0.08 });
+
+    io.observe(monitor);
+
+    // Fallback: if the observer never fired (e.g., layout quirk), force on after 6s
+    setTimeout(() => {
+      const hasOn = monitor.classList.contains('projector-on');
+      if (!hasOn) {
+        monitor.classList.add('projector-on');
+        monitor.classList.add('pixel-intensify');
+        window.dispatchEvent(new CustomEvent('about-projector-ready'));
+      }
+    }, 6000);
+  })();
+
+  // Typing effect for About panel
+  (function initAboutTyping(){
+    const about = document.querySelector('.about');
+    const panel = document.querySelector('.about-panel');
+    if (!about || !panel) return;
+
+    // Prepare targets: heading + paragraphs
+    const h2 = panel.querySelector('h2');
+    const ps = Array.from(panel.querySelectorAll('p'));
+    if (!h2) return;
+
+    // Wrap content into spans for typing
+    const makeTarget = (el) => {
+      if (!el || el.dataset.typed) return null;
+      const text = el.textContent;
+      el.textContent = '';
+      const span = document.createElement('span');
+      span.className = 'type-target';
+      span.textContent = text;
+      const caret = document.createElement('span');
+      caret.className = 'typing-caret';
+      el.appendChild(span);
+      el.appendChild(caret);
+      el.dataset.typed = '1';
+      return { el, span, caret, text };
+    };
+
+    const items = [makeTarget(h2), ...ps.map(makeTarget)].filter(Boolean);
+    if (items.length === 0) return;
+
+    // Prepare the name line to appear after other texts
+    const NAME_TEXT = 'Miyoung Chae';
+    let nameEl = panel.querySelector('.about-name');
+    if (!nameEl) {
+      nameEl = document.createElement('p');
+      nameEl.className = 'about-name';
+      nameEl.textContent = NAME_TEXT;
+      panel.appendChild(nameEl);
+    }
+    const nameItem = makeTarget(nameEl);
+
+    const typeText = async (item, speed = 14) => {
+      const { span, caret, text } = item;
+      span.textContent = '';
+      span.style.visibility = 'visible';
+      caret.style.display = 'inline-block';
+      for (let i = 1; i <= text.length; i++) {
+        span.textContent = text.slice(0, i);
+        await new Promise(r => setTimeout(r, speed));
+      }
+      caret.style.display = 'none';
+    };
+
+    let started = false;
+    let panelVisible = false;
+    let projectorReady = false;
+
+    const maybeStart = async () => {
+      if (started || !panelVisible || !projectorReady) return;
+      started = true;
+      // ensure the container text is visible while typing animates
+      items.forEach(({ el }) => { el.style.opacity = '1'; });
+      // Type H2 slightly faster, then paragraphs
+      await typeText(items[0], 10);
+      for (let i = 1; i < items.length; i++) {
+        await new Promise(r => setTimeout(r, 220));
+        await typeText(items[i], 14);
+      }
+      // Type the name line at 3× slower than paragraph speed (14*3=42)
+      if (nameItem) {
+        await typeText(nameItem, 42);
+      }
+    };
+
+    // Start typing only after panel is in view AND projector is ready
+    const io = new IntersectionObserver((entries, obs) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          panelVisible = true;
+          obs.disconnect();
+          // start a localized failsafe after panel became visible
+            const fallback = setTimeout(() => {
+            if (!started) {
+              items.forEach(({ el, span, caret, text }) => {
+                span.style.visibility = 'visible';
+                span.textContent = text;
+                if (caret) caret.style.display = 'none';
+                el.style.opacity = '1';
+              });
+              // show the name immediately (no typing) so user still sees it
+              if (nameItem) {
+                const { el, span, caret } = nameItem;
+                span.style.visibility = 'visible';
+                span.textContent = NAME_TEXT;
+                if (caret) caret.style.display = 'none';
+                el.style.opacity = '1';
+              }
+              started = true;
+            }
+            }, 8000); // allow more time for the extended projector reveal before failing over
+
+          // if we do start, clear fallback
+          const clearIfStarted = () => { if (started) clearTimeout(fallback); };
+          window.addEventListener('about-projector-ready', clearIfStarted, { once: true });
+          maybeStart();
+        }
+      });
+    }, { threshold: 0.05, rootMargin: '0px 0px -20% 0px' });
+    io.observe(panel);
+
+    // Listen for projector ready event
+    window.addEventListener('about-projector-ready', () => {
+      projectorReady = true;
+      maybeStart();
+    }, { once: true });
+  })();
+
+  // --- NAV: Hamburger toggle + previews (run regardless of film-strip presence) ---
+  (function initNavigation() {
+    const siteHeader = document.querySelector('.site-nav');   // <header class="site-nav">
+    const toggleBtn  = document.querySelector('.nav-toggle'); // Hamburger-Button
+    const mainMenu   = document.getElementById('main-menu');  // <ul id="main-menu">
+
+    if (siteHeader && toggleBtn && mainMenu) {
+      // prevent duplicate handlers
+      if (!toggleBtn.dataset.bound) {
+        toggleBtn.addEventListener('click', () => {
+          const open = siteHeader.classList.toggle('open');  // .site-nav.open toggeln
+          toggleBtn.setAttribute('aria-expanded', String(open));
+          document.body.classList.toggle('no-scroll', open); // Scroll sperren bei offen
+        });
+        toggleBtn.dataset.bound = '1';
+      }
+
+      if (!mainMenu.dataset.bound) {
+        // Menü schließen beim Link-Klick
+        mainMenu.addEventListener('click', (e) => {
+          if (e.target.closest('a')) {
+            siteHeader.classList.remove('open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('no-scroll');
+          }
+        });
+        mainMenu.dataset.bound = '1';
+      }
+
+      if (!siteHeader.dataset.escBound) {
+        // (optional) ESC zum Schließen
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'Escape') {
+            siteHeader.classList.remove('open');
+            toggleBtn.setAttribute('aria-expanded', 'false');
+            document.body.classList.remove('no-scroll');
+          }
+        });
+        siteHeader.dataset.escBound = '1';
+      }
+    }
+
+    // NAV PREVIEW: pointer + touch handling (small, robust)
+    (function () {
+      const items = document.querySelectorAll('.nav-menu li');
+      if (!items || items.length === 0) return;
+
+      // pointer devices: show on pointerenter/leave
+      items.forEach(li => {
+        li.addEventListener('pointerenter', () => li.classList.add('hovering'));
+        li.addEventListener('pointerleave', () => li.classList.remove('hovering'));
+      });
+
+      // touch devices: two-tap pattern — first tap shows preview, second tap follows link
+      let lastTapItem = null;
+      items.forEach(li => {
+        li.addEventListener('touchstart', (ev) => {
+          // only when menu overlay open
+          if (!siteHeader || !siteHeader.classList.contains('open')) return;
+          // if same item tapped within short time and already hovering -> allow navigation
+          if (lastTapItem === li && li.classList.contains('hovering')) {
+            lastTapItem = null;
+            return;
+          }
+          // otherwise show preview and prevent immediate navigation
+          ev.preventDefault();
+          items.forEach(i => i.classList.remove('hovering'));
+          li.classList.add('hovering');
+          lastTapItem = li;
+          // hide preview after short timeout if user does nothing
+          setTimeout(() => {
+            if (lastTapItem === li) {
+              li.classList.remove('hovering');
+              lastTapItem = null;
+            }
+          }, 2200);
+        }, { passive: false });
+      });
+
+      // clicking outside or closing menu clears hovering
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.nav-menu')) {
+          items.forEach(i => i.classList.remove('hovering'));
+          lastTapItem = null;
+        }
+      });
+    })();
+
+    // FLOATING PREVIEW: position .nav-preview as fixed overlay next to menu item
+    (function () {
+      const menu = document.getElementById('main-menu');
+      if (!menu) return;
+      const previews = menu.querySelectorAll('.nav-preview');
+
+      const clearFloating = () => previews.forEach(p => { p.classList.remove('floating','visible'); p.style.left=''; p.style.top=''; });
+
+      menu.addEventListener('pointerenter', (e) => {
+        const li = e.target.closest('li');
+        if (!li) return;
+        const preview = li.querySelector('.nav-preview');
+        if (!preview) return;
+        // compute position: align vertically to li center, place to the right of menu column
+        const rect = li.getBoundingClientRect();
+        const top = rect.top + rect.height/2;
+        preview.classList.add('floating','visible');
+        preview.style.left = (rect.left - preview.offsetWidth - 36) + 'px';
+        preview.style.top = (top - preview.offsetHeight/2) + 'px';
+        // hide other previews
+        previews.forEach(p => { if (p !== preview) p.classList.remove('floating','visible'); });
+      }, true);
+
+      menu.addEventListener('pointerleave', () => { clearFloating(); }, true);
+
+      // keep previews cleared when menu closes
+      const header = document.querySelector('.site-nav');
+      if (header) {
+        const obs = new MutationObserver(() => { if (!header.classList.contains('open')) clearFloating(); });
+        obs.observe(header, { attributes: true, attributeFilter:['class'] });
+      }
+    })();
+  })();
 
   // --- FILM: AUTO, RHYTHMUS, KONKAV, DIMM (Auto + Maus-Override) ---
   (function () {
@@ -319,120 +769,6 @@ document.addEventListener('DOMContentLoaded', () => {
       rafId = requestAnimationFrame(loop);
     });
 
-    // Menü: auf/zu (nur Mobile, Desktop bleibt gleich)
-const siteHeader = document.querySelector('.site-nav');   // <header class="site-nav">
-const toggleBtn  = document.querySelector('.nav-toggle'); // Hamburger-Button
-const mainMenu   = document.getElementById('main-menu');  // <ul id="main-menu">
-
-if (siteHeader && toggleBtn && mainMenu) {
-  toggleBtn.addEventListener('click', () => {
-    const open = siteHeader.classList.toggle('open');  // .site-nav.open toggeln
-    toggleBtn.setAttribute('aria-expanded', String(open));
-    document.body.classList.toggle('no-scroll', open); // Scroll sperren bei offen
-  });
-
-  // Menü schließen beim Link-Klick
-  mainMenu.addEventListener('click', (e) => {
-    if (e.target.closest('a')) {
-      siteHeader.classList.remove('open');
-      toggleBtn.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('no-scroll');
-    }
-
-    
-  });
-
-  // (optional) ESC zum Schließen
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      siteHeader.classList.remove('open');
-      toggleBtn.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('no-scroll');
-    }
-  });
-}
-
-// NAV PREVIEW: pointer + touch handling (small, robust)
-(function () {
-  const items = document.querySelectorAll('.nav-menu li');
-  if (!items || items.length === 0) return;
-
-  // pointer devices: show on pointerenter/leave
-  items.forEach(li => {
-    li.addEventListener('pointerenter', () => li.classList.add('hovering'));
-    li.addEventListener('pointerleave', () => li.classList.remove('hovering'));
-  });
-
-  // touch devices: two-tap pattern — first tap shows preview, second tap follows link
-  let lastTapItem = null;
-  items.forEach(li => {
-    li.addEventListener('touchstart', (ev) => {
-      // only when menu overlay open
-      if (!siteHeader.classList.contains('open')) return;
-      const now = Date.now();
-      // if same item tapped within short time and already hovering -> allow navigation
-      if (lastTapItem === li && li.classList.contains('hovering')) {
-        // allow default behavior (link click)
-        lastTapItem = null;
-        return;
-      }
-      // otherwise show preview and prevent immediate navigation
-      ev.preventDefault();
-      items.forEach(i => i.classList.remove('hovering'));
-      li.classList.add('hovering');
-      lastTapItem = li;
-      // hide preview after short timeout if user does nothing
-      setTimeout(() => {
-        if (lastTapItem === li) {
-          li.classList.remove('hovering');
-          lastTapItem = null;
-        }
-      }, 2200);
-    }, { passive: false });
-  });
-
-  // clicking outside or closing menu clears hovering
-  document.addEventListener('click', (e) => {
-    if (!e.target.closest('.nav-menu')) {
-      items.forEach(i => i.classList.remove('hovering'));
-      lastTapItem = null;
-    }
-  });
-})();
-
-// FLOATING PREVIEW: position .nav-preview as fixed overlay next to menu item
-(function () {
-  const menu = document.getElementById('main-menu');
-  if (!menu) return;
-  const previews = menu.querySelectorAll('.nav-preview');
-
-  const clearFloating = () => previews.forEach(p => { p.classList.remove('floating','visible'); p.style.left=''; p.style.top=''; });
-
-  menu.addEventListener('pointerenter', (e) => {
-    const li = e.target.closest('li');
-    if (!li) return;
-    const preview = li.querySelector('.nav-preview');
-    if (!preview) return;
-    // compute position: align vertically to li center, place to the right of menu column
-    const rect = li.getBoundingClientRect();
-    const px = window.innerWidth - rect.left + 12; // place near right side of li
-    const top = rect.top + rect.height/2;
-    preview.classList.add('floating','visible');
-    preview.style.left = (rect.left - preview.offsetWidth - 36) + 'px';
-    preview.style.top = (top - preview.offsetHeight/2) + 'px';
-    // hide other previews
-    previews.forEach(p => { if (p !== preview) p.classList.remove('floating','visible'); });
-  }, true);
-
-  menu.addEventListener('pointerleave', (e) => {
-    clearFloating();
-  }, true);
-
-  // keep previews cleared when menu closes
-  const header = document.querySelector('.site-nav');
-  const obs = new MutationObserver(() => { if (!header.classList.contains('open')) clearFloating(); });
-  obs.observe(header, { attributes: true, attributeFilter:['class'] });
-})();
 
 
     // Dim-Effekt beim Scroll (unverändert, stört ScrollTrigger nicht)

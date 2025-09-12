@@ -1,15 +1,17 @@
 /* Schrift */
 @font-face {
   font-family: 'Inter';
-  src: url('../fonts/Inter-Regular.woff2') format('woff2');
-  font-weight: 100 900;
+  /* Inter-Regular.woff2 is inside the local fonts/ folder next to this stylesheet */
+  src: url('./fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
   font-style: normal;
   font-display: swap;
 }
 
 @font-face {
   font-family: 'Plus Jakarta Sans';
-  src: url('../fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf') format('truetype');
+  /* Italic variable fallback (TTF) */
+  src: url('./fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 800;
   font-style: italic;
   font-display: swap;
@@ -17,7 +19,9 @@
 
 @font-face {
   font-family: 'Plus Jakarta Sans';
-  src: url('../fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
+  /* Variable woff2 for weights */
+  /* Use TTF because only TTF is present in the repo */
+  src: url('./fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
   font-weight: 100 800;
   font-style: normal;
   font-display: swap;
@@ -28,6 +32,19 @@
 :root {
   --filmFilter: none;
   --filmShade: 0;
+  /* pixel grid controls for film screen */
+  --pixel-size: 8px;           /* dot size (reduced slightly) */
+  --pixel-opacity: 0.12;       /* brightness of each dot */
+  /* photo pixel overlay controls (only on the About photo) */
+  --photo-dot-size: clamp(6px, 1.4vw, 14px);   /* larger pixel size */
+  --photo-dot-white: 0.22;   /* stronger white dots at center */
+  --photo-dot-black: 0.42;   /* much stronger black dots at edges */
+  --photo-dot-center: 50%;   /* center emphasis tighter */
+  --photo-dot-edge: 50%;     /* pull edge darkening inward for stronger edge */
+  /* mask to show pixel overlay only near edges (0..1 radius) */
+  --photo-pixel-mask-center: 52%;
+  /* image edge fade start (center fully visible until this) */
+  --photo-fade-start: 58%;
 }
 
 /* Basis */
@@ -49,6 +66,25 @@ body {
   font-family: 'Inter', Roboto, sans-serif;
 }
 
+/* Global LED billboard-style pixel overlay */
+/* disable global LED overlay (we'll apply pixels only on the photo) */
+body::before,
+body::after { content: none !important; }
+
+/* Slightly larger dots and lower intensity on small screens to avoid moiré */
+/* no special global LED adjustments on mobile anymore */
+
+/* prevent background scroll when mobile menu is open */
+body.no-scroll { overflow: hidden; }
+/* short scroll pause helper (used when About frame hits top) */
+body.about-hold { overflow: hidden; }
+/* robust visual freeze during hold */
+body.scroll-freeze {
+  position: fixed;
+  width: 100%;
+  /* top/left set inline by JS to preserve scroll position */
+}
+
 a, button {
   color: inherit;
   cursor: pointer;
@@ -59,7 +95,7 @@ a, button {
 
 .site-nav{
   position: fixed;
-  z-index: 2147483000; /* very high so menu and previews are above page layout */
+  z-index: 2; /* very high so menu and previews are above page layout */
   background-color: #111;
   width: 100%;
 }
@@ -240,8 +276,6 @@ section:first-of-type {
 /* Remove any visible borders/outlines around photo boxes globally */
 .photo-box,
 .photo-box img,
-.profile-photo,
-.about-media .photo-box,
 .project-card .photo-box,
 .nav-preview,
 .nav-preview::before {
@@ -258,15 +292,12 @@ section:first-of-type {
   margin: 0;
   background: transparent;
   border-radius: 50px;
-  height: 100vh;
+  height: 120%;
+  padding: 0; /* align content to black frame, not global section padding */
   
-  opacity: 0;
+  opacity: 1; /* ensure section is visible (typing handled via JS) */
 }
 
-/* Black frame that covers ~90% of viewport width, top corners rounded.
-   Rendered behind the about content but above page background; it scrolls with the section. */
-/* Black frame that covers ~90% of viewport width, top corners rounded.
-   Rendered behind the about content but above page background; it scrolls with the section. */
 .about::before {
   content: '';
   position: absolute;
@@ -312,27 +343,247 @@ section:first-of-type {
 
 .about-frame {
   display: grid;
-  gap: clamp(16px, 3.5vw, 36px);
+  gap: clamp(24px, 5vw, 80px); /* wider gap between photo and text */
   grid-template-columns: 1fr 2fr;
+  align-items: center; /* center content vertically in the grid row */
+  /* match the black frame width and center it */
+  width: 95vw;
+  margin: 0 auto;
+  /* equal top/bottom/left insets inside the black frame; top also offsets below the frame's top edge */
+  --about-inset: clamp(28px, 6vw, 64px);
+  --about-inset-right: clamp(40px, 8vw,120px); /* larger right padding */
+  padding: calc(var(--nav-height, 0px) + var(--about-inset)) var(--about-inset-right) var(--about-inset) var(--about-inset);
+}
+
+/* Desktop: increase right padding by additional 100px, mobile/tablet unchanged */
+@media (min-width: 981px) {
+  .about-frame { 
+    --about-inset-right: calc(clamp(40px, 8vw, 120px) + 100px);
+  }
+  /* move the text panel 80px down (photo unchanged) */
+  .about-panel {
+    margin-top: 80px;
+  }
 }
 
 /* profile photo block */
-.about-media { display:block; }
-.profile-photo { position: relative; border-radius: 20px; overflow: hidden; }
-.profile-photo picture,
-.profile-photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.about-media {
+  display: flex;              /* enable vertical centering for the monitor */
+  align-items: center;        /* center vertically */
+  justify-content: flex-start;/* keep to the left */
+  position: relative;         /* base for any local offsets */
+  /* local offset variables (relative to black frame) */
+  --about-monitor-offset-y: clamp(120px, 18vh, 320px); /* push further down */
+  --about-monitor-offset-x: clamp(16px, 4vw, 64px);    /* nudge right */
+}
+.crt-monitor {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1; /* plain, no global transparency */
+  /* apply offsets inside the black frame */
+  margin-top: calc(var(--about-monitor-offset-y) - 100px);
+  margin-left: var(--about-monitor-offset-x);
+}
+.crt-monitor img {
+  display: block;
+  /* crop ~10px from the right: widen and shift left */
+  width: calc(100% + 10px);
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  transform: none;
+  opacity: .90; /* slightly less transparent */
+  margin-left: -10px;
+  border: 0;
+  outline: 0;
+  /* fade the photo edges to transparent */
+  -webkit-mask-image: radial-gradient(135% 115% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-fade-start), rgba(255,255,255,0) 100%);
+  mask-image: radial-gradient(135% 115% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-fade-start), rgba(255,255,255,0) 100%);
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+}
+/* Projector reveal styles */
+html.js .crt-monitor.projector img { opacity: 0; }
+.crt-monitor.projector {
+  position: relative;
+}
+.crt-monitor.projector::before {
+  /* pixel grid + edge black dots + scanline texture + vignette */
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background:
+    /* WHITE DOTS (center emphasis) */
+    radial-gradient(circle at center,
+      rgba(255,255,255, var(--photo-dot-white)) 0 52%,
+      rgba(255,255,255, 0) 56%
+    ) 0 0 / var(--photo-dot-size) var(--photo-dot-size) repeat,
+    /* WHITE CENTER MASK (modulate white dots down at edges) */
+    radial-gradient(120% 100% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-dot-center), rgba(255,255,255,.35) calc(var(--photo-dot-center) + 6%), rgba(255,255,255,0) 100%),
+    /* BLACK DOTS (edge emphasis) offset half-cell */
+    radial-gradient(circle at center,
+      rgba(0,0,0, var(--photo-dot-black)) 0 72%,
+      rgba(0,0,0, 0) 74%
+    ) calc(var(--photo-dot-size)/2) calc(var(--photo-dot-size)/2) / var(--photo-dot-size) var(--photo-dot-size) repeat,
+    /* BLACK EDGE MASK (grow toward edges) */
+  radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-dot-edge), rgba(0,0,0,.85) calc(var(--photo-dot-edge) + 6%), rgba(0,0,0,1) 100%),
+    /* EXTRA EDGE BOOST */
+    radial-gradient(145% 120% at 50% 50%, rgba(0,0,0,0) 0 60%, rgba(0,0,0,0.25) 82%, rgba(0,0,0,0.55) 100%),
+    /* fine horizontal texture */
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,0.028) 0px,
+      rgba(255,255,255,0.028) 1px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0) 3px
+    ),
+    /* soft vignette */
+    radial-gradient(140% 120% at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.18) 100%);
+  background-blend-mode: normal, multiply, normal, multiply, multiply, overlay, normal;
+  /* blend directly over the image area */
+  mix-blend-mode: normal;
+  opacity: 0;
+  /* show pixel overlay only near the edges using a radial mask */
+  -webkit-mask-image: radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-pixel-mask-center), rgba(0,0,0,1) calc(var(--photo-pixel-mask-center) + 6%), rgba(0,0,0,1) 100%);
+  mask-image: radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-pixel-mask-center), rgba(0,0,0,1) calc(var(--photo-pixel-mask-center) + 6%), rgba(0,0,0,1) 100%);
+  mask-mode: alpha;
+}
+.crt-monitor.projector::after {
+  /* quick beam flare at turn-on */
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient( to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 48%, rgba(255,255,255,0) 100% );
+  opacity: 0;
+}
+.crt-monitor.projector.projector-on::before { 
+  /* stronger, clearer pixel overlay with slight ongoing flicker */
+  animation: 
+    projectorGrain 2000ms ease-out forwards,
+    projectorOverlayIn 500ms ease-out 2000ms forwards,
+    projectorFlicker 7.5s ease-in-out 2600ms infinite;
+}
+.crt-monitor.projector.projector-on::after  { 
+  /* beam sweep + quick start flash */
+  animation: 
+    projectorBeam 1100ms ease-out 0ms both,
+    projectorFlash 420ms ease-out 320ms both;
+}
+.crt-monitor.projector.projector-on img {
+  animation:
+    projectorOn 2400ms cubic-bezier(.2,.9,.2,1) 0ms both,
+    projectorJitter 6s ease-in-out 3000ms infinite;
+}
 
-/* semi-transparent black overlay to unify tone */
+@keyframes projectorOn {
+  0%   { opacity: 0; filter: brightness(0) contrast(1) saturate(1) blur(1px); transform: scale(1.005); }
+  12%  { opacity: .15; filter: brightness(1.6) contrast(.85) saturate(.85) blur(1.2px); }
+  28%  { opacity: .4;  filter: brightness(.9)  contrast(.9)  saturate(.9)  blur(0.9px); }
+  48%  { opacity: .65; filter: brightness(1.2) contrast(.92) saturate(.92) blur(0.8px); }
+  72%  { opacity: .82; filter: brightness(1.0) contrast(.9)  saturate(.95) blur(0.7px); }
+  100% { opacity: .80; filter: brightness(1.02) contrast(.92) saturate(.95) blur(0.6px); transform: none; }
+}
 
+@keyframes projectorGrain {
+  from { opacity: 0; }
+  60%  { opacity: .26; }
+  to   { opacity: .18; }
+}
 
+@keyframes projectorBeam {
+  0%   { opacity: 0; transform: translateX(-8%) skewX(-6deg); }
+  20%  { opacity: .35; transform: translateX(0)   skewX(0deg); }
+  100% { opacity: 0; transform: translateX(12%)  skewX(4deg); }
+}
+
+/* subtle ongoing flicker (tiny opacity variations of the texture layer) */
+@keyframes projectorFlicker {
+  0% { opacity: .18; }
+  8% { opacity: .22; }
+  10% { opacity: .17; }
+  12% { opacity: .20; }
+  20% { opacity: .18; }
+  53% { opacity: .19; }
+  56% { opacity: .16; }
+  58% { opacity: .20; }
+  75% { opacity: .18; }
+  100% { opacity: .18; }
+}
+
+/* ensure pixel overlay ramps to a higher visibility right after intro */
+@keyframes projectorOverlayIn {
+  from { opacity: .16; }
+  to   { opacity: .28; }
+}
+
+/* quick exposure pulse as the image appears */
+@keyframes projectorFlash {
+  from { opacity: 0; }
+  50%  { opacity: .25; }
+  to   { opacity: 0; }
+}
+
+/* One-time intensify to a darker pixel overlay, then hold */
+@keyframes pixelIntensify {
+  from { opacity: .22; }
+  60%  { opacity: .34; }
+  to   { opacity: .36; }
+}
+
+/* When pixel-intensify flag is set, override previous animations and hold darker state */
+.crt-monitor.projector.projector-on.pixel-intensify::before {
+  animation: pixelIntensify 1200ms ease-out forwards !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .crt-monitor.projector.projector-on::before,
+  .crt-monitor.projector.projector-on::after,
+  .crt-monitor.projector.projector-on img {
+    animation: none !important;
+  }
+}
+
+@keyframes projectorFlicker {
+  0% { opacity: .22; }
+  8% { opacity: .28; }
+  10% { opacity: .21; }
+  12% { opacity: .26; }
+  20% { opacity: .22; }
+  53% { opacity: .24; }
+  56% { opacity: .20; }
+  58% { opacity: .26; }
+  75% { opacity: .22; }
+  100% { opacity: .22; }
+}
+
+/* (hologram keyframes removed earlier) */
 
 .about-panel h2 {
   margin: 0 0 .6rem 0;
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
+  font-size: clamp(2rem, 4.8vw, 3rem); /* bigger heading */
 }
 .about-panel p {
   margin: .4rem 0;
   color: #d8d8d8;
+  font-size: clamp(1.3rem, 2.8vw, 2.2rem); /* bigger and responsive */
+  line-height: 1.7;
+}
+/* 200px gap above the name */
+.about-panel .about-name { margin-top: 200px; }
+
+/* typing effect basics */
+.about-panel .type-target { visibility: hidden; }
+.typing-caret {
+  display: inline-block;
+  width: 0.6ch;
+  border-right: 2px solid #e5e5e5;
+  animation: caretBlink 0.9s steps(1) infinite;
+}
+@keyframes caretBlink {
+  0%, 49% { border-color: #e5e5e5; }
+  50%, 100% { border-color: transparent; }
 }
 
 
@@ -482,13 +733,13 @@ section:first-of-type {
 .footer-logo{ font-family: 'Plus Jakarta Sans'; font-weight:600; color:#fff; text-decoration:none; letter-spacing:0.06em; }
 .footer-note{ margin:0; font-size: .9rem; color: #bfbfbf; }
 .footer-nav ul{ display:flex; gap:clamp(20px, 4vw, 48px); margin:0; padding:0; list-style:none; }
-.footer-nav a{ color: #cfcfcf; text-decoration:none; font-size: .95rem; opacity:0.95; display:inline-block; transform-origin: center; transition: transform .18s ease, color .18s ease; }
+.footer-nav a{ color: #cfcfcf; text-decoration:none; font-size: 1.05rem; opacity:0.95; display:inline-block; transform-origin: center; transition: transform .18s ease, color .18s ease; }
 .footer-nav a:hover, .footer-nav a:focus{ color:#fff; text-decoration:none; transform: scale(1.06); }
 .footer-contact{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
-.footer-email{ color:#cfcfcf; text-decoration:none; font-size:.95rem }
-.footer-social a{ color:#cfcfcf; text-decoration:none; margin-left:10px; font-size:.9rem; opacity:0.95 }
+.footer-email{ color:#cfcfcf; text-decoration:none; font-size:1.05rem }
+.footer-social a{ color:#cfcfcf; text-decoration:none; margin-left:10px; font-size:1rem; opacity:0.95 }
 
-.footer-bottom{ margin-top:48px; text-align:center; color:#999; font-size:.82rem; }
+.footer-bottom{ margin-top:48px; text-align:center; color:#999; font-size:.9rem; }
 
 @media (max-width: 860px){
   .footer-inner{ flex-direction:column; align-items:flex-start; }
@@ -534,13 +785,106 @@ section:first-of-type {
   flex: 0 0 auto;
   height: 90%;
   aspect-ratio: 3 / 2;
+  position: relative;
   border-radius: 16px;
-  background: #bd2904;
-  box-shadow: 0 1px 0 rgba(235,234,234,.35) inset, 0 16px 40px rgba(0,0,0,.18);
+  /* full-bleed screen only (no bezel/frame); base gradient (Set A) */
+  background:
+    radial-gradient(150% 180% at 25% 35%, rgba(0,210,255,0.70) 0%, rgba(0,210,255,0.25) 34%, rgba(0,210,255,0) 62%),
+    radial-gradient(140% 170% at 78% 68%, rgba(127,87,255,0.72) 0%, rgba(127,87,255,0.28) 36%, rgba(127,87,255,0) 64%),
+    radial-gradient(110% 140% at 62% 30%, rgba(255,77,166,0.38) 0%, rgba(255,77,166,0) 60%),
+    linear-gradient(135deg, #00d2ff 0%, #7f57ff 44%, #fa2c93 85%);
+  background-size: 160% 160%, 160% 160%, 180% 180%, 200% 200%;
+  background-position: 25% 35%, 78% 68%, 62% 30%, 50% 50%;
+  animation: baseDrift 36s ease-in-out infinite alternate;
+  overflow: hidden;
   backface-visibility: hidden;
   transform-origin: 50% 50%;
   will-change: transform, opacity;
 }
+
+/* inner "screen" with animated gradient and soft glow */
+.film-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* palette limited to sky blue and purple/pink */
+  background:
+    radial-gradient(140% 180% at 28% 28%, #2aa8ff 0%, rgba(42,168,255,0.55) 34%, transparent 64%),
+    radial-gradient(130% 170% at 74% 72%, #7a5cff 0%, rgba(122,92,255,0.55) 36%, transparent 66%),
+    radial-gradient(100% 140% at 60% 35%, rgba(255,77,166,0.45) 0%, rgba(255,77,166,0) 60%),
+    radial-gradient(120% 160% at 40% 75%, rgba(0,229,255,0.35) 0%, rgba(0,229,255,0) 65%),
+    linear-gradient(135deg, #00e5ff 0%, #7f57ff 40%, #ff4da6 80%);
+  background-size: 160% 160%, 160% 160%, 180% 180%, 140% 140%, 200% 200%;
+  background-position: 28% 32%, 72% 68%, 60% 35%, 40% 75%, 50% 50%;
+  filter: saturate(1.15) brightness(1.02);
+  box-shadow:
+    0 0 26px rgba(70,160,255,0.22),
+    0 0 70px rgba(138,43,226,0.18);
+  opacity: .75;
+  animation: screenCross 18s ease-in-out infinite alternate;
+  will-change: filter, opacity;
+}
+
+/* subtle glossy glass reflection */
+.film-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  /* pixel grid (top) + glass reflections (below) */
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,var(--pixel-opacity)) 0 42%, rgba(255,255,255,0) 43%) 0 0 / var(--pixel-size) var(--pixel-size) repeat,
+    linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06) 12%, rgba(255,255,255,0.02) 22%, rgba(255,255,255,0) 42%),
+    radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  opacity: .6;
+}
+
+@keyframes screenCross {
+  0% {
+    opacity: .60;
+    background-position: 28% 32%, 72% 68%, 60% 35%, 40% 75%, 50% 50%;
+    background-size:     160% 160%, 160% 160%, 180% 180%, 140% 140%, 200% 200%;
+    filter: saturate(1.05) brightness(1.00);
+  }
+  25% {
+    opacity: .95;
+    background-position: 36% 24%, 64% 76%, 56% 42%, 48% 66%, 48% 52%;
+    background-size:     180% 180%, 150% 150%, 210% 210%, 150% 150%, 230% 230%;
+    filter: saturate(1.20) brightness(1.06);
+  }
+  50% {
+    opacity: .70;
+    background-position: 22% 38%, 78% 62%, 64% 30%, 36% 82%, 52% 48%;
+    background-size:     165% 165%, 170% 170%, 185% 185%, 145% 145%, 205% 205%;
+    filter: saturate(1.12) brightness(1.02);
+  }
+  75% {
+    opacity: 1.00;
+    background-position: 40% 20%, 60% 80%, 52% 44%, 50% 60%, 46% 54%;
+    background-size:     190% 190%, 160% 160%, 220% 220%, 155% 155%, 235% 235%;
+    filter: saturate(1.25) brightness(1.08);
+  }
+  100% {
+    opacity: .65;
+    background-position: 26% 36%, 74% 64%, 62% 32%, 38% 78%, 52% 48%;
+    background-size:     165% 165%, 155% 155%, 185% 185%, 145% 145%, 205% 205%;
+    filter: saturate(1.10) brightness(1.03);
+  }
+}
+
+@keyframes baseDrift {
+  0%   { background-position: 25% 35%, 78% 68%, 62% 30%, 50% 50%; }
+  50%  { background-position: 28% 32%, 72% 74%, 58% 34%, 48% 52%; }
+  100% { background-position: 22% 40%, 80% 60%, 66% 28%, 52% 48%; }
+}
+
+/* variety across boxes */
+.film-box:nth-child(3n)::before { animation-duration: 22s; animation-delay: -4s; }
+.film-box:nth-child(3n+1)::before { animation-duration: 16s; animation-delay: -10s; }
+.film-box:nth-child(4n+2)::before { animation-duration: 26s; animation-delay: -7s; }
 
 /* Dim bei Scroll */
 .film-dim {
@@ -555,6 +899,35 @@ html:not(.js) .about-panel,
 html:not(.js) .projects .section-title,
 html:not(.js) .project-card {
   opacity: 1;
+}
+
+/* ----- Spacer page after Projects ----- */
+.logo-project1 {
+  height: 100vh;
+  padding: 0 !important;
+  width: 95vw;            /* same width as sections above */
+  margin: 0 auto;         /* centered */
+  background: #000000;       /* white background */
+  /* ensure it sits above the fixed film background */
+  position: relative;
+  z-index: 3;
+  /* isolate to prevent blend/flicker from background layers */
+  isolation: isolate;
+  opacity: 1;
+  
+
+/* Full-bleed white layer so edges are also white (while content stays 95vw) */
+.logo-project1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  background: #000000;
+  z-index: -1; /* behind section content but within isolated stacking context */
+}
 }
 
 
@@ -578,7 +951,7 @@ html:not(.js) .project-card {
   /* About 1 Spalte */
   .about-frame {
     grid-template-columns: 1fr;
-    gap: clamp(12px, 4vw, 28px);
+  gap: clamp(20px, 6vw, 40px); /* wider vertical gap on mobile */
   }
   .about {
     height: 100%;
@@ -675,16 +1048,18 @@ html:not(.js) .project-card {
 
   /* Vollbild-Menü unter dem Header */
   .nav-menu {
-    position: fixed;
-    inset: 0;
-    height: 100%;
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: var(--nav-height, 0px);
+  height: calc(100% - var(--nav-height, 0px));
     background: #111;
     display: flex;
     flex-direction: column;
     justify-content: start;
     align-items: flex-end;
     padding: clamp(24px, 6vw, 40px) clamp(18px, 7vw, 48px);
-  padding-top: clamp(176px, 14vw, 148px); /* bumped so menu visually sits lower after header padding increase */
+  padding-top: clamp(12px, 4vw, 28px);
     gap: clamp(12px, 3.5vw, 50px);
     opacity: 0;
     transform: translateY(6px);
