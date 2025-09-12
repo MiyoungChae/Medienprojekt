@@ -95,7 +95,7 @@ a, button {
 
 .site-nav{
   position: fixed;
-  z-index: 2; /* very high so menu and previews are above page layout */
+  z-index: 100; /* very high so menu and previews are above page layout */
   background-color: #111;
   width: 100%;
 }
@@ -237,7 +237,7 @@ section:first-of-type {
 .reveal2 {
   font-weight: 700;
   font-size: clamp(3.2rem, 12vw, 8rem);
-  line-height: .95;               /* fix: saubere Zeilenhöhe */
+  line-height: .76;               /* reduced ~20% from .95 */
   margin: 0 0 .2em 0;
   opacity: 0;
   will-change: transform, opacity;
@@ -246,7 +246,7 @@ section:first-of-type {
 .reveal {
   font-weight: 300;
   font-size: clamp(1.2rem, 4.2vw, 2.3rem);
-  line-height: 1.35;              /* fix: zu enge Zeilenhöhe → normal */
+  line-height: 1.08;              /* reduced ~20% from 1.35 */
   margin: 0;
   padding-left: 0;                 /* fix: linke Kante angleichen */
   opacity: 0;
@@ -345,7 +345,7 @@ section:first-of-type {
   display: grid;
   gap: clamp(24px, 5vw, 80px); /* wider gap between photo and text */
   grid-template-columns: 1fr 2fr;
-  align-items: center; /* center content vertically in the grid row */
+  align-items: stretch; /* stretch so portrait can match panel height */
   /* match the black frame width and center it */
   width: 95vw;
   margin: 0 auto;
@@ -375,29 +375,27 @@ section:first-of-type {
   /* local offset variables (relative to black frame) */
   --about-monitor-offset-y: clamp(120px, 18vh, 320px); /* push further down */
   --about-monitor-offset-x: clamp(16px, 4vw, 64px);    /* nudge right */
+  margin-top: 100px; /* push photo block further down within the frame */
 }
 .crt-monitor {
   position: relative;
   border-radius: 16px;
   overflow: hidden;
-  aspect-ratio: 4 / 5;
   background: transparent;
   box-shadow: none;
   opacity: 1; /* plain, no global transparency */
-  /* apply offsets inside the black frame */
-  margin-top: calc(var(--about-monitor-offset-y) - 100px);
+  /* fill the grid cell height to match the text panel (scaled up ~20%) */
+  height: calc((100% - 150px) * 1.2);
   margin-left: var(--about-monitor-offset-x);
 }
 .crt-monitor img {
   display: block;
-  /* crop ~10px from the right: widen and shift left */
-  width: calc(100% + 10px);
+  width: 100%;
   height: 100%;
   object-fit: cover;
   filter: none;
   transform: none;
-  opacity: .90; /* slightly less transparent */
-  margin-left: -10px;
+  opacity: .95; /* slightly less transparent */
   border: 0;
   outline: 0;
   /* fade the photo edges to transparent */
@@ -568,7 +566,7 @@ html.js .crt-monitor.projector img { opacity: 0; }
   margin: .4rem 0;
   color: #d8d8d8;
   font-size: clamp(1.3rem, 2.8vw, 2.2rem); /* bigger and responsive */
-  line-height: 1.7;
+  line-height: 1.36; /* reduced ~20% from 1.7 */
 }
 /* 200px gap above the name */
 .about-panel .about-name { margin-top: 200px; }
@@ -606,7 +604,7 @@ html.js .crt-monitor.projector img { opacity: 0; }
   font-family: 'Inter', sans-serif;
   font-weight: 700;
   font-size: clamp(1.3rem, 3.2vw, 3rem);
-  line-height: 1.5;
+  line-height: 1.2; /* reduced ~20% from 1.5 */
   color: #111;
   opacity: 0;
   display: flex;
@@ -940,7 +938,7 @@ html:not(.js) .project-card {
   .startseite {
     grid-template-columns: 1fr;
     gap: clamp(12px, 4.5vw, 40px);
-    min-height: min(100svh, 820px);
+  margin-top: 180px; /* increased by 100px as requested */
   }
   .start-media {
     order: -1; /* Bild oben */
@@ -1009,14 +1007,24 @@ html:not(.js) .project-card {
 /* Smartphone (<= 680px) */
 @media (max-width: 680px) {
 
-  /* Header oben behalten */
+  /* Header oben behalten (pin header to top on phones) */
   .site-nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 7vh;
     z-index: 10050; /* über Menü */
+    margin: 0;
+    padding-top: clamp(8px, 3.2vw, 100px);
+    padding-bottom: clamp(8px, 3.2vw, 100px);
   }
 
-  /* Hamburger sichtbar */
+  /* Hamburger visible: tighten header paddings so nav sits at top */
   .nav {
     position: relative;
+    padding-top: clamp(8px, 3.2vw, 100px);
+    padding-bottom: clamp(8px, 3.2vw, 100px);
   }
   .nav-toggle {
     display: flex;
@@ -1036,6 +1044,11 @@ html:not(.js) .project-card {
     top: 50%;
     transform: translateY(-50%);
     z-index: 10051; /* über Menü */
+  }
+
+  /* avoid header overlapping content: add top padding equal to header height */
+  body {
+    padding-top: calc(var(--nav-height, 56px));
   }
   .nav-toggle .bar {
     display: block;
