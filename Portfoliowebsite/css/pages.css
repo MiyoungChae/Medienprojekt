@@ -1,0 +1,589 @@
+/* 
+  pages.css
+  - Startseite (Hero, Texte, Media)
+  - About (Rahmen, Panel, Foto, Projektor-Effekte + Keyframes)
+  - About-Text (Überschrift, Absatz, Tipp-Cursor)
+  - Projekte (Liste, Karten, Overlay, CTA)
+  - Spacer-Sektion (.logo-project1)
+  - Responsive Regeln (<=980px, <=680px)
+*/
+
+/* -------------------------- Startseite ----------------------------*/
+
+/* Start: Grid-Zentrum (Hero links bleibt zentriert) */
+.startseite {
+  display: grid;
+  align-items: center;
+  gap: clamp(16px, 5vw, 64px);
+  grid-template-columns: 1fr minmax(240px, 36vw);
+  height: 100%;
+  position: relative;
+  z-index: auto;
+  transform: none;
+  opacity: 1;
+  filter: none;
+  isolation: unset; /* Blend-Modus soll mit Hintergrund mischen */
+}
+
+.start-wrap {
+  --edge: clamp(12px, 2.5vw, 24px);
+  padding-left: var(--edge);
+  max-width: 100%;
+  position: relative;
+  z-index: 2;
+  color: #000000;
+  mix-blend-mode: difference;
+  background: transparent !important;
+}
+.start-wrap .blend-on{
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+/* Kinder erben Farbe → saubere Mischung */
+.start-wrap * {
+  color: inherit !important;
+  background: transparent;
+}
+
+.reveal2 {
+  font-weight: 700;
+  font-size: clamp(3.2rem, 12vw, 8rem);
+  line-height: .76; /* ~20% kleiner als .95 */
+  margin: 0 0 .2em 0;
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.reveal {
+  font-weight: 300;
+  font-size: clamp(1.2rem, 4.2vw, 2.3rem);
+  line-height: 1.08; /* ~20% kleiner als 1.35 */
+  margin: 0;
+  padding-left: 0; /* linke Kante angleichen */
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+.start-media {
+  z-index: 1;
+  position: relative;
+  display: grid;
+  place-items: start end;
+}
+
+.start-media .photo-box { aspect-ratio: 1/1; }
+
+
+/* -------------------------- About me ---------------------------- */
+
+/* About: Rahmen + Layout */
+.about {
+  position: relative;
+  z-index: 2;
+  margin: 0;
+  background: transparent;
+  border-radius: 50px;
+  height: 120%;
+  padding: 0; /* Inhalt an schwarzen Rahmen ausrichten, nicht globalen Section-Padding */
+  opacity: 1; /* sichtbar; Tippen per JS */
+}
+
+.about::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: var(--nav-height, 0px); /* unter der Navi platzieren */
+  transform: translateX(-50%);
+  width: 95vw;
+  height: calc(100% - var(--nav-height, 0px)); /* Höhe minus Navi */
+  background: #000; /* voller schwarzer Rahmen */
+  border-radius: 18px 18px 0 0; /* nur oben abgerundet */
+  z-index: 200; /* über der Abdunklung */
+  pointer-events: none;
+}
+
+/* About-Inhalt über dem Rahmen halten */
+.about > .about-frame,
+.about .about-panel,
+.about .about-media {
+  position: relative;
+  z-index: 201; /* über dem Rahmen */
+}
+
+/* Abdunklung: voller Viewport, per --about-dim (0..1) */
+.about::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw; /* wie Rahmenbreite */
+  top: var(--nav-height, 0px);
+  height: calc(100% - var(--nav-height, 0px));
+  background: linear-gradient(to bottom, rgba(0,0,0,0) 10%, rgba(0,0,0,var(--about-dim, 0)) 100%); /* oben transparent → unten dunkler */
+  z-index: 150; /* unter dem Rahmen, über dem Hintergrund */
+  pointer-events: none;
+  border-radius: 18px 18px 0 0; /* wie oben */
+  transition: background .18s linear, top .12s linear, height .12s linear;
+}
+
+/* About: Grid im Rahmen */
+.about-frame {
+  display: grid;
+  gap: clamp(24px, 5vw, 80px); /* größerer Abstand Foto ↔ Text */
+  grid-template-columns: 1fr 2fr;
+  align-items: stretch; /* Porträt an Panel-Höhe anpassen */
+  width: 95vw; /* Rahmenbreite */
+  margin: 0 auto; /* zentriert */
+  --about-inset: clamp(28px, 6vw, 64px);
+  --about-inset-right: clamp(40px, 8vw,120px); /* rechts größer */
+  padding: calc(var(--nav-height, 0px) + var(--about-inset)) var(--about-inset-right) var(--about-inset) var(--about-inset);
+}
+
+/* Desktop-Feinschliff */
+@media (min-width: 981px) {
+  .about-frame { 
+    --about-inset-right: calc(clamp(40px, 8vw, 120px) + 100px); /* +100px rechts */
+  }
+  .about-panel {
+    margin-top: 80px; /* Textpanel 80px tiefer */
+  }
+}
+
+/* Profilfoto-Block */
+.about-media {
+  display: flex;              /* vertikal zentrieren */
+  align-items: center;        /* vertikal mittig */
+  justify-content: flex-start;/* links halten */
+  position: relative;         /* Basis für Offsets */
+  --about-monitor-offset-y: clamp(120px, 18vh, 320px); /* weiter nach unten */
+  --about-monitor-offset-x: clamp(16px, 4vw, 64px);    /* leicht nach rechts */
+  margin-top: 100px; /* Foto-Block weiter unten */
+}
+.crt-monitor {
+  position: relative;
+  border-radius: 16px;
+  overflow: hidden;
+  background: transparent;
+  box-shadow: none;
+  opacity: 1; /* keine globale Transparenz */
+  height: calc((100% - 150px) * 1.2); /* etwas höher als Panel */
+  margin-left: var(--about-monitor-offset-x);
+}
+.crt-monitor img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: none;
+  transform: none;
+  opacity: .95; /* etwas weniger transparent */
+  border: 0;
+  outline: 0;
+  -webkit-mask-image: radial-gradient(135% 115% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-fade-start), rgba(255,255,255,0) 100%); /* Ränder ausblenden */
+  mask-image: radial-gradient(135% 115% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-fade-start), rgba(255,255,255,0) 100%); /* Ränder ausblenden */
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  mask-mode: alpha;
+}
+
+/* Projektor-Effekt: Reveal */
+html.js .crt-monitor.projector img { opacity: 0; }
+.crt-monitor.projector {
+  position: relative;
+}
+.crt-monitor.projector::before {
+  /* Pixel, schwarze Randpunkte, Scanlines, Vignette */
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background:
+    /* WEISSE PUNKTE (Mitte) */
+    radial-gradient(circle at center,
+      rgba(255,255,255, var(--photo-dot-white)) 0 52%,
+      rgba(255,255,255, 0) 56%
+    ) 0 0 / var(--photo-dot-size) var(--photo-dot-size) repeat,
+    /* WEISSE MITTEN-MASKE (am Rand schwächer) */
+    radial-gradient(120% 100% at 50% 50%, rgba(255,255,255,1) 0 var(--photo-dot-center), rgba(255,255,255,.35) calc(var(--photo-dot-center) + 6%), rgba(255,255,255,0) 100%),
+    /* SCHWARZE PUNKTE (Rand) halb versetzt */
+    radial-gradient(circle at center,
+      rgba(0,0,0, var(--photo-dot-black)) 0 72%,
+      rgba(0,0,0, 0) 74%
+    ) calc(var(--photo-dot-size)/2) calc(var(--photo-dot-size)/2) / var(--photo-dot-size) var(--photo-dot-size) repeat,
+    /* SCHWARZE RAND-MASKE (zum Rand stärker) */
+  radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-dot-edge), rgba(0,0,0,.85) calc(var(--photo-dot-edge) + 6%), rgba(0,0,0,1) 100%),
+    /* EXTRA RAND-BOOST */
+    radial-gradient(145% 120% at 50% 50%, rgba(0,0,0,0) 0 60%, rgba(0,0,0,0.25) 82%, rgba(0,0,0,0.55) 100%),
+    /* feine horizontale Struktur */
+    repeating-linear-gradient(to bottom,
+      rgba(255,255,255,0.028) 0px,
+      rgba(255,255,255,0.028) 1px,
+      rgba(0,0,0,0) 2px,
+      rgba(0,0,0,0) 3px
+    ),
+    /* weiche Vignette */
+    radial-gradient(140% 120% at 50% 50%, rgba(0,0,0,0) 58%, rgba(0,0,0,0.18) 100%);
+  background-blend-mode: normal, multiply, normal, multiply, multiply, overlay, normal;
+  mix-blend-mode: normal; /* direkt über dem Bild */
+  opacity: 0;
+  -webkit-mask-image: radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-pixel-mask-center), rgba(0,0,0,1) calc(var(--photo-pixel-mask-center) + 6%), rgba(0,0,0,1) 100%); /* nur am Rand zeigen */
+  mask-image: radial-gradient(130% 110% at 50% 50%, rgba(0,0,0,0) 0 var(--photo-pixel-mask-center), rgba(0,0,0,1) calc(var(--photo-pixel-mask-center) + 6%), rgba(0,0,0,1) 100%); /* nur am Rand zeigen */
+  mask-mode: alpha;
+}
+.crt-monitor.projector::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; border-radius: inherit;
+  background: linear-gradient( to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.35) 48%, rgba(255,255,255,0) 100% ); /* schneller Lichtstrahl */
+  opacity: 0;
+}
+.crt-monitor.projector.projector-on::before { 
+  /* stärkeres Pixel-Overlay + leichtes Flackern */
+  animation: 
+    projectorGrain 2000ms ease-out forwards,
+    projectorOverlayIn 500ms ease-out 2000ms forwards,
+    projectorFlicker 7.5s ease-in-out 2600ms infinite;
+}
+.crt-monitor.projector.projector-on::after  { 
+  /* Sweep + kurzer Blitz */
+  animation: 
+    projectorBeam 1100ms ease-out 0ms both,
+    projectorFlash 420ms ease-out 320ms both;
+}
+.crt-monitor.projector.projector-on img {
+  animation:
+    projectorOn 2400ms cubic-bezier(.2,.9,.2,1) 0ms both,
+    projectorJitter 6s ease-in-out 3000ms infinite;
+}
+
+/* Keyframes: Projektor */
+@keyframes projectorOn {
+  0%   { opacity: 0; filter: brightness(0) contrast(1) saturate(1) blur(1px); transform: scale(1.005); }
+  12%  { opacity: .15; filter: brightness(1.6) contrast(.85) saturate(.85) blur(1.2px); }
+  28%  { opacity: .4;  filter: brightness(.9)  contrast(.9)  saturate(.9)  blur(0.9px); }
+  48%  { opacity: .65; filter: brightness(1.2) contrast(.92) saturate(.92) blur(0.8px); }
+  72%  { opacity: .82; filter: brightness(1.0) contrast(.9)  saturate(.95) blur(0.7px); }
+  100% { opacity: .80; filter: brightness(1.02) contrast(.92) saturate(.95) blur(0.6px); transform: none; }
+}
+
+@keyframes projectorGrain {
+  from { opacity: 0; }
+  60%  { opacity: .26; }
+  to   { opacity: .18; }
+}
+
+@keyframes projectorBeam {
+  0%   { opacity: 0; transform: translateX(-8%) skewX(-6deg); }
+  20%  { opacity: .35; transform: translateX(0)   skewX(0deg); }
+  100% { opacity: 0; transform: translateX(12%)  skewX(4deg); }
+}
+
+/* feines Dauerflackern */
+@keyframes projectorFlicker {
+  0% { opacity: .18; }
+  8% { opacity: .22; }
+  10% { opacity: .17; }
+  12% { opacity: .20; }
+  20% { opacity: .18; }
+  53% { opacity: .19; }
+  56% { opacity: .16; }
+  58% { opacity: .20; }
+  75% { opacity: .18; }
+  100% { opacity: .18; }
+}
+
+/* Overlay etwas stärker nach Intro */
+@keyframes projectorOverlayIn {
+  from { opacity: .16; }
+  to   { opacity: .28; }
+}
+
+/* kurzer Belichtungs-Blitz */
+@keyframes projectorFlash {
+  from { opacity: 0; }
+  50%  { opacity: .25; }
+  to   { opacity: 0; }
+}
+
+/* einmalig dunkler, dann halten */
+@keyframes pixelIntensify {
+  from { opacity: .22; }
+  60%  { opacity: .34; }
+  to   { opacity: .36; }
+}
+
+/* Flag: stärkeres Overlay halten */
+.crt-monitor.projector.projector-on.pixel-intensify::before {
+  animation: pixelIntensify 1200ms ease-out forwards !important;
+}
+
+/* Bewegungen reduzieren: Animation aus */
+@media (prefers-reduced-motion: reduce) {
+  .crt-monitor.projector.projector-on::before,
+  .crt-monitor.projector.projector-on::after,
+  .crt-monitor.projector.projector-on img {
+    animation: none !important;
+  }
+}
+
+/* zweites Flicker-Set (beibehalten) */
+@keyframes projectorFlicker {
+  0% { opacity: .22; }
+  8% { opacity: .28; }
+  10% { opacity: .21; }
+  12% { opacity: .26; }
+  20% { opacity: .22; }
+  53% { opacity: .24; }
+  56% { opacity: .20; }
+  58% { opacity: .26; }
+  75% { opacity: .22; }
+  100% { opacity: .22; }
+}
+
+/* Hologramm-Keyframes wurden entfernt */
+
+/* About-Text */
+.about-panel h2 {
+  margin: 0 0 .6rem 0;
+  font-size: clamp(2rem, 4.8vw, 3rem); /* größere Überschrift */
+}
+.about-panel p {
+  margin: .4rem 0;
+  color: #d8d8d8;
+  font-size: clamp(1.3rem, 2.8vw, 2.2rem); /* größer & responsive */
+  line-height: 1.36; /* ~20% kleiner als 1.7 */
+}
+/* 200px Abstand über dem Namen */
+.about-panel .about-name { margin-top: 200px; }
+
+/* Tippen-Effekt */
+.about-panel .type-target { visibility: hidden; }
+.typing-caret {
+  display: inline-block;
+  width: 0.6ch;
+  border-right: 2px solid #e5e5e5;
+  animation: caretBlink 0.9s steps(1) infinite;
+}
+@keyframes caretBlink {
+  0%, 49% { border-color: #e5e5e5; }
+  50%, 100% { border-color: transparent; }
+}
+
+
+/* -----------------------------Projekte ------------------------*/
+
+/* Projekte: Sektion + Grid */
+.projects {
+  position: relative;
+  z-index: 2;
+  margin: 0 auto; /* Sektion zentriert */
+  background: #fff;
+  opacity: 1;
+  width: 95vw;
+  /* groß: begrenzen & zentriert halten */
+}
+
+.projects .section-title {
+  margin: 0;
+  padding-top: 60px;
+  padding-bottom: 40px;
+  max-width: 100%;
+  font-family: 'Inter', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.3rem, 3.2vw, 3rem);
+  line-height: 1.2; /* ~20% kleiner als 1.5 */
+  color: #111;
+  opacity: 0;
+  display: flex;
+  justify-content: center;
+}
+
+.projects-grid {
+  width: 100%;
+  max-width: 80rem;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Desktop: 2 Spalten */
+  gap: clamp(12px, 2.6vw, 24px);
+}
+
+.project-card {
+  display: grid;
+  gap: .2rem;
+  text-decoration: none;
+  border-radius: 18px;
+  padding: clamp(10px, 1.6vw, 16px);
+  opacity: 0;
+  background: #0f0f0f;
+  position: relative;
+  overflow: hidden;
+}
+
+.project-card .photo-box {
+  aspect-ratio: 3/2;
+  opacity: 1;
+}
+
+.project-card span {
+  justify-self: center;
+  font-size: clamp(1rem, 2.2vw, 1.5rem);
+  color: #ffffff;
+}
+
+/* Overlay (Karte) */
+.card-overlay {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  gap: 0;
+  padding: 5rem;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(0,0,0,.08), rgba(0,0,0,.6));
+  backdrop-filter: blur(3px);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .28s ease, transform .28s ease;
+  place-content: center; /* wirklich mittig */
+}
+
+/* Overlay: Titel/Text/CTA */
+.ov-title {
+  margin: 0 0 .3rem .0 !important;
+  font-weight: 600;
+  font-size: clamp(1.1rem, 2.4vw, 2.0rem);
+  color: #fff;
+}
+
+.ov-text {
+  margin: 0 0 .3rem 0;
+  color: #eaeaea;
+  font-size: clamp(.9rem, 2vw, 1.2rem);
+}
+
+.ov-cta {
+  display: inline-block;
+  margin-top: 3rem;
+  padding: .55rem .9rem; /* doppeltes Padding entfernt */
+  border: 1px solid #fff;
+  border-radius: 999px;
+  color: #111;
+  font-weight: 600;
+  font-size: .80rem;
+  text-decoration: none;
+  transform: translateY(2px);
+  transition: transform .2s ease;
+}
+
+/* Overlay zeigen bei Hover/Fokus */
+.project-card:hover .card-overlay,
+.project-card:focus-within .card-overlay {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* alten Titel ausblenden bei Overlay */
+.project-card:hover > span,
+.project-card:focus-within > span {
+  opacity: 0;
+  transition: opacity .2s ease;
+}
+
+
+/* ----- Spacer-Seite nach Projekte ----- */
+.logo-project1 {
+  height: 100vh;
+  padding: 0 !important;
+  width: 95vw;            /* gleiche Breite wie oben */
+  margin: 0 auto;         /* zentriert */
+  background: #000000;    /* schwarzer Hintergrund */
+  position: relative;     /* über fixem Film-Hintergrund */
+  z-index: 3;
+  isolation: isolate;     /* gegen Misch-/Flacker-Effekte */
+  opacity: 1;
+  
+
+/* Vollflächige Ebene (Ränder auch abgedeckt; Inhalt bleibt 95vw) */
+.logo-project1::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
+  height: 100%;
+  background: #000000;
+  z-index: -1; /* hinter Inhalt, im selben Stack-Kontext */
+}
+}
+
+
+/* -------------------------- Responsive (pages) ----------------------------*/
+
+/* Tablet (<= 980px) */
+@media (max-width: 980px) {
+
+  /* Hero untereinander */
+  .startseite {
+    grid-template-columns: 1fr;
+    gap: clamp(12px, 4.5vw, 40px);
+    margin-top: 180px; /* um 100px erhöht */
+  }
+  .start-media {
+    order: -1; /* Bild oben */
+    place-items: center;
+    margin-left: 0;
+  }
+
+  /* About: 1 Spalte */
+  .about-frame {
+    grid-template-columns: 1fr;
+    gap: clamp(20px, 6vw, 40px); /* vertikal mehr Luft */
+  }
+  .about {
+    height: 100%;
+    min-height: 52vh;
+    width: 100%;
+  }
+  .about-panel {
+    height: 100%;
+    min-height: 52vh;
+    width: 100%;
+  }
+
+  /* Projekte: 2 Spalten */
+  .projects-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(10px, 2.8vw, 20px);
+    max-width: 72rem;
+  }
+  .card-overlay {
+    padding: clamp(28px, 5vw, 48px);
+  }
+}
+
+/* Smartphone (<= 680px) */
+@media (max-width: 680px) {
+
+  /* Projekte: 1 Spalte */
+  .projects-grid {
+    grid-template-columns: 1fr;
+    gap: clamp(10px, 3.2vw, 18px);
+    max-width: 48rem;
+  }
+  .project-card {
+    padding: clamp(8px, 2.6vw, 12px);
+    border-radius: 16px;
+  }
+  .project-card .photo-box {
+    aspect-ratio: 4 / 3;
+  }
+  .start-wrap {
+    padding-left: clamp(10px, 2.4vw, 18px);
+  }
+  .start-media .photo-box {
+    aspect-ratio: 4 / 5;
+  }
+  .card-overlay {
+    padding: clamp(24px, 6vw, 40px);
+  }
+}

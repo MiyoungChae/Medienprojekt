@@ -1,0 +1,287 @@
+/* 
+  base.css
+  - Basis: Reset, @font-face, :root Variablen
+  - HTML/BODY Grundstil, Links/Buttons
+  - Abstand für alle Abschnitte (global)
+  - Foto-Box Grundstil (global)
+  - Film-Hintergrund + Keyframes (screenCross, baseDrift)
+  - Hilfen: .no-scroll, .about-hold, .scroll-freeze
+  - Kleine Mobile-Regel (nur Abschnitts-Abstand)
+*/
+
+/* Schriften */
+@font-face {
+  font-family: 'Inter';
+  /* Inter-Regular.woff2 liegt im Root-Ordner /fonts (Pfad von /css angepasst) */
+  src: url('../fonts/Inter-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  /* Italic Variable (TTF) – Pfad von /css angepasst */
+  src: url('../fonts/PlusJakartaSans-Italic-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  /* Variable Font (TTF) – Pfad von /css angepasst */
+  src: url('../fonts/PlusJakartaSans-VariableFont_wght.ttf') format('truetype');
+  font-weight: 100 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+
+/* Variablen für Film/Pixel */
+:root {
+  --filmFilter: none;
+  --filmShade: 0;
+  --pixel-size: 8px;           /* Punktgröße */
+  --pixel-opacity: 0.12;       /* Helligkeit der Punkte */
+  --photo-dot-size: clamp(6px, 1.4vw, 14px);   /* größere Pixel für Foto */
+  --photo-dot-white: 0.22;     /* hellere weiße Punkte in der Mitte */
+  --photo-dot-black: 0.42;     /* dunklere schwarze Punkte am Rand */
+  --photo-dot-center: 50%;     /* Schwerpunkt Mitte */
+  --photo-dot-edge: 50%;       /* Verstärkung zum Rand */
+  --photo-pixel-mask-center: 52%;              /* Maske: Mitte sichtbar */
+  --photo-fade-start: 58%;                     /* Foto-Fade ab hier */
+}
+
+/* Basis-Reset und Grundstil */
+* { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+html { scroll-behavior: smooth; }
+
+html { font-size: 100% !important; } /* Basis-Schriftgröße normalisieren */
+
+body {
+  background: #111111;
+  color: #ffffff;
+  font-family: 'Inter', Roboto, sans-serif;
+}
+
+/* globale LED-Überlagerung aus */
+body::before,
+body::after { content: none !important; }
+
+/* Scroll-Hilfen */
+body.no-scroll { overflow: hidden; }      /* kein Scrollen (Mob.-Menü offen) */
+body.about-hold { overflow: hidden; }     /* kurzer Halt */
+body.scroll-freeze {
+  position: fixed;
+  width: 100%;
+  /* top/left per JS gesetzt */
+}
+
+a, button {
+  color: inherit;
+  cursor: pointer;
+}
+
+/* Abstand für alle Abschnitte (gilt auf der ganzen Seite) */
+section {
+  padding-inline: clamp(16px, 6vw, 120px);
+  padding-block: clamp(72px, 12vw, 140px);
+}
+
+/* extra Abstand nur bei der ersten Sektion */
+section:first-of-type {
+  padding-top: clamp(120px, 18vw, 180px);
+}
+
+/* Foto-Box Grundstil (global) */
+.photo-box {
+  border-radius: 20px;
+  overflow: hidden;
+  opacity: 1;
+}
+.photo-box img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Ränder/Outlines global entfernen (Foto/Preview) */
+.photo-box,
+.photo-box img,
+.project-card .photo-box,
+.nav-preview,
+.nav-preview::before {
+  border: 0 !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+
+/* Film: fester Hintergrund */
+.film-strip {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+  perspective: 1100px;
+  filter: var(--filmFilter);
+  transition: filter .4s ease;
+}
+.film-strip::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: #000;
+  opacity: var(--filmShade);
+  pointer-events: none;
+  transition: opacity .4s ease;
+}
+.film-track {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+  transform: translateZ(0);
+}
+.film-box {
+  flex: 0 0 auto;
+  height: 90%;
+  aspect-ratio: 3 / 2;
+  position: relative;
+  border-radius: 16px;
+  /* Bildschirm ohne Rahmen; Grundverlauf (Set A) */
+  background:
+    radial-gradient(150% 180% at 25% 35%, rgba(0,210,255,0.70) 0%, rgba(0,210,255,0.25) 34%, rgba(0,210,255,0) 62%),
+    radial-gradient(140% 170% at 78% 68%, rgba(127,87,255,0.72) 0%, rgba(127,87,255,0.28) 36%, rgba(127,87,255,0) 64%),
+    radial-gradient(110% 140% at 62% 30%, rgba(255,77,166,0.38) 0%, rgba(255,77,166,0) 60%),
+    linear-gradient(135deg, #00d2ff 0%, #7f57ff 44%, #fa2c93 85%);
+  background-size: 160% 160%, 160% 160%, 180% 180%, 200% 200%;
+  background-position: 25% 35%, 78% 68%, 62% 30%, 50% 50%;
+  animation: baseDrift 36s ease-in-out infinite alternate;
+  overflow: hidden;
+  backface-visibility: hidden;
+  transform-origin: 50% 50%;
+  will-change: transform, opacity;
+}
+
+/* innere Fläche mit Verlauf/Glanz */
+.film-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(140% 180% at 28% 28%, #2aa8ff 0%, rgba(42,168,255,0.55) 34%, transparent 64%),
+    radial-gradient(130% 170% at 74% 72%, #7a5cff 0%, rgba(122,92,255,0.55) 36%, transparent 66%),
+    radial-gradient(100% 140% at 60% 35%, rgba(255,77,166,0.45) 0%, rgba(255,77,166,0) 60%),
+    radial-gradient(120% 160% at 40% 75%, rgba(0,229,255,0.35) 0%, rgba(0,229,255,0) 65%),
+    linear-gradient(135deg, #00e5ff 0%, #7f57ff 40%, #ff4da6 80%);
+  background-size: 160% 160%, 160% 160%, 180% 180%, 140% 140%, 200% 200%;
+  background-position: 28% 32%, 72% 68%, 60% 35%, 40% 75%, 50% 50%;
+  filter: saturate(1.15) brightness(1.02); /* etwas kräftiger/heller */
+  box-shadow:
+    0 0 26px rgba(70,160,255,0.22),
+    0 0 70px rgba(138,43,226,0.18);
+  opacity: .75;
+  animation: screenCross 18s ease-in-out infinite alternate;
+  will-change: filter, opacity;
+}
+
+/* Glas-Reflex + Pixelgitter */
+.film-box::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    radial-gradient(circle at center, rgba(255,255,255,var(--pixel-opacity)) 0 42%, rgba(255,255,255,0) 43%) 0 0 / var(--pixel-size) var(--pixel-size) repeat,
+    linear-gradient(180deg, rgba(255,255,255,0.14), rgba(255,255,255,0.06) 12%, rgba(255,255,255,0.02) 22%, rgba(255,255,255,0) 42%),
+    radial-gradient(120% 60% at 50% 0%, rgba(255,255,255,0.08) 0%, rgba(255,255,255,0) 70%);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  opacity: .6;
+}
+
+/* Keyframes */
+@keyframes screenCross {
+  0% {
+    opacity: .60;
+    background-position: 28% 32%, 72% 68%, 60% 35%, 40% 75%, 50% 50%;
+    background-size:     160% 160%, 160% 160%, 180% 180%, 140% 140%, 200% 200%;
+    filter: saturate(1.05) brightness(1.00);
+  }
+  25% {
+    opacity: .95;
+    background-position: 36% 24%, 64% 76%, 56% 42%, 48% 66%, 48% 52%;
+    background-size:     180% 180%, 150% 150%, 210% 210%, 150% 150%, 230% 230%;
+    filter: saturate(1.20) brightness(1.06);
+  }
+  50% {
+    opacity: .70;
+    background-position: 22% 38%, 78% 62%, 64% 30%, 36% 82%, 52% 48%;
+    background-size:     165% 165%, 170% 170%, 185% 185%, 145% 145%, 205% 205%;
+    filter: saturate(1.12) brightness(1.02);
+  }
+  75% {
+    opacity: 1.00;
+    background-position: 40% 20%, 60% 80%, 52% 44%, 50% 60%, 46% 54%;
+    background-size:     190% 190%, 160% 160%, 220% 220%, 155% 155%, 235% 235%;
+    filter: saturate(1.25) brightness(1.08);
+  }
+  100% {
+    opacity: .65;
+    background-position: 26% 36%, 74% 64%, 62% 32%, 38% 78%, 52% 48%;
+    background-size:     165% 165%, 155% 155%, 185% 185%, 145% 145%, 205% 205%;
+    filter: saturate(1.10) brightness(1.03);
+  }
+}
+
+@keyframes baseDrift {
+  0%   { background-position: 25% 35%, 78% 68%, 62% 30%, 50% 50%; }
+  50%  { background-position: 28% 32%, 72% 74%, 58% 34%, 48% 52%; }
+  100% { background-position: 22% 40%, 80% 60%, 66% 28%, 52% 48%; }
+}
+
+/* Variation je Box */
+.film-box:nth-child(3n)::before { animation-duration: 22s; animation-delay: -4s; }
+.film-box:nth-child(3n+1)::before { animation-duration: 16s; animation-delay: -10s; }
+.film-box:nth-child(4n+2)::before { animation-duration: 26s; animation-delay: -7s; }
+
+/* Dimmen beim Scrollen */
+.film-dim {
+  --filmFilter: blur(6px) brightness(.6) contrast(.95);
+  --filmShade: .55;
+}
+
+/* Fallback ohne JS */
+html:not(.js) .reveal,
+html:not(.js) .reveal2,
+html:not(.js) .about-panel,
+html:not(.js) .projects .section-title,
+html:not(.js) .project-card {
+  opacity: 1;
+}
+
+
+/* Responsive: Basis (nur globaler Abschnitts-Abstand auf Mobile) */
+@media (max-width: 680px) {
+  /* Abstände kompakter */
+  section {
+    padding-inline: clamp(14px, 5.5vw, 24px);
+    padding-block: clamp(48px, 10vw, 96px);
+  }
+}
